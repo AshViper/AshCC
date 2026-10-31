@@ -206,8 +206,8 @@ public final class AshCCConfig {
         FLAP_DEFAULT_SPEED = b.comment("Servo speed of a newly placed flap bearing (degrees per second)").defineInRange("defaultSpeed", 90.0, 1.0, 7200.0);
         FLAP_MAX_SPEED = b.comment("Maximum servo speed settable from Lua (degrees per second)").defineInRange("maxSpeed", 720.0, 1.0, 7200.0);
         FLAP_MAX_ANGLE = b.comment("Target angles are clamped to +-this many degrees").defineInRange("maxAngle", 180.0, 1.0, 180.0);
-        FLAP_REDSTONE_ANGLE = b.comment("Angle a redstone flap bearing turns to at signal strength 15 (degrees, linear in the signal)")
-            .defineInRange("redstoneAngle", 45.0, 1.0, 180.0);
+        FLAP_REDSTONE_ANGLE = b.comment("Maximum angle of a redstone flap bearing (degrees). Coarse input faces step 6 degrees per signal level (0-90), fine faces 1 degree per level up to 5, so every whole degree up to the cap is reachable")
+            .defineInRange("redstoneAngle", 90.0, 1.0, 180.0);
         b.pop();
         b.push("servoBearing");
         SERVO_DEFAULT_SPEED = b.comment("Servo speed of a newly placed servo bearing (degrees per second)").defineInRange("defaultSpeed", 90.0, 1.0, 7200.0);
