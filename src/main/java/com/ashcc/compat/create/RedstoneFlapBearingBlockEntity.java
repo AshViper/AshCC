@@ -10,9 +10,11 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Flap bearing whose target angle follows redstone instead of a computer:
- * angle = (strongest side signal - back signal) / 15 * redstoneAngle. Unpowered it holds 0 degrees.
- * Right-click assembles / disassembles as usual.
+ * Flap bearing whose target angle follows redstone instead of a computer. Each input face has a fixed sign:
+ * seen from the front, the right-hand and top faces turn it +, the left-hand and bottom faces and the back turn
+ * it - (with the front pointing up: north and east are +, south and west are -). The angle is
+ * (strongest + signal - strongest - signal) / 15 * redstoneAngle, so the flap swings both ways depending on
+ * which side the signal comes from. Unpowered it holds 0 degrees. Right-click assembles / disassembles as usual.
  */
 public class RedstoneFlapBearingBlockEntity extends FlapBearingBlockEntity {
     private int lastComparator;
@@ -36,17 +38,36 @@ public class RedstoneFlapBearingBlockEntity extends FlapBearingBlockEntity {
         }
     }
 
-    /** Signed target from the signals around the bearing. */
+    /** Signed target from the signals around the bearing: the strongest + face against the strongest - face. */
     static float redstoneTarget(Level level, BlockPos pos, BlockState state) {
         Direction facing = state.getValue(DirectionalKineticBlock.FACING);
-        Direction back = facing.getOpposite();
-        int side = 0;
+        int pos15 = 0, neg15 = 0;
         for (Direction d : Direction.values()) {
-            if (d.getAxis() == facing.getAxis()) continue;
-            side = Math.max(side, level.getSignal(pos.relative(d), d));
+            if (d == facing) continue;
+            int s = level.getSignal(pos.relative(d), d);
+            if (s == 0) continue;
+            int sign = d == facing.getOpposite() ? -1 : signOf(d, facing);
+            if (sign > 0) pos15 = Math.max(pos15, s);
+            else neg15 = Math.max(neg15, s);
         }
-        int rear = level.getSignal(pos.relative(back), back);
-        return (float) ((side - rear) / 15.0 * AshCCConfig.FLAP_REDSTONE_ANGLE.get());
+        return (float) ((pos15 - neg15) / 15.0 * AshCCConfig.FLAP_REDSTONE_ANGLE.get());
+    }
+
+    /**
+     * The sign of an input face: + for the faces on one side of the rotation axis (the lateral face along
+     * facing x up, and the up face itself), - for the opposite pair. With a vertical facing the reference
+     * axis is X instead of up, which makes north/east + and south/west -.
+     */
+    static int signOf(Direction d, Direction facing) {
+        net.minecraft.core.Vec3i a = facing.getNormal();
+        net.minecraft.core.Vec3i r = Math.abs(a.getY()) < 1 ? new net.minecraft.core.Vec3i(0, 1, 0) : new net.minecraft.core.Vec3i(1, 0, 0);
+        net.minecraft.core.Vec3i dv = d.getNormal();
+        int alongSide = dv.getX() * (a.getY() * r.getZ() - a.getZ() * r.getY())
+            + dv.getY() * (a.getZ() * r.getX() - a.getX() * r.getZ())
+            + dv.getZ() * (a.getX() * r.getY() - a.getY() * r.getX());
+        if (alongSide != 0) return Integer.signum(alongSide);
+        int alongRef = dv.getX() * r.getX() + dv.getY() * r.getY() + dv.getZ() * r.getZ();
+        return Integer.signum(alongRef);
     }
 
     /** 0..15 from how far the flap is turned either way, full at redstoneAngle. */

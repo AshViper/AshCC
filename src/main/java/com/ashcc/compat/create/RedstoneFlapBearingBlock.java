@@ -11,7 +11,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Flap bearing steered by redstone alone: signal into a side turns it one way, signal into the back the other way.
+ * Flap bearing steered by redstone alone: each input face has a fixed sign (front view: right and top +,
+ * left and bottom and the back -), so wiring the other side swings the flap the other way.
  * Comparators read how far it is deflected.
  */
 public class RedstoneFlapBearingBlock extends FlapBearingBlock {

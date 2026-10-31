@@ -13,7 +13,7 @@ import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
-/** Redstone flap bearing: side signal turns it +, back signal turns it -, comparator reads the deflection. Skipped without Create. */
+/** Redstone flap bearing: + faces turn it one way, - faces the other (facing up: east/north +, west/south/back -), comparator reads the deflection. Skipped without Create. */
 @GameTestHolder(AshCC.MOD_ID)
 @PrefixGameTestTemplate(false)
 public class RedstoneFlapBearingTests {
@@ -54,9 +54,19 @@ public class RedstoneFlapBearingTests {
                         helper.assertTrue(be.comparatorOutput() == 0, "comparator " + be.comparatorOutput());
                         helper.setBlock(side, Blocks.AIR);
                         helper.setBlock(back, Blocks.AIR);
-                        helper.assertTrue(be.requestDisassemble(), "disassemble at 0");
-                        helper.assertBlockPresent(Blocks.OAK_PLANKS, flap);
-                        helper.succeed();
+                        // The opposite lateral face swings it the other way
+                        BlockPos west = pos.west();
+                        helper.setBlock(west, Blocks.REDSTONE_BLOCK);
+                        helper.runAfterDelay(25, () -> {
+                            helper.assertTrue(Math.abs(be.currentAngle() + 45) < 1e-3, "west: angle " + be.currentAngle());
+                            helper.setBlock(west, Blocks.AIR);
+                            helper.runAfterDelay(15, () -> {
+                                helper.assertTrue(Math.abs(be.currentAngle()) < 1e-3, "released: angle " + be.currentAngle());
+                                helper.assertTrue(be.requestDisassemble(), "disassemble at 0");
+                                helper.assertBlockPresent(Blocks.OAK_PLANKS, flap);
+                                helper.succeed();
+                            });
+                        });
                     });
                 });
             });
