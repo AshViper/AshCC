@@ -1,1 +1,0 @@
-{"category":"redstone","key":{"C":{"item":"ashcc:control_panel"},"G":{"item":"minecraft:glass_pane"},"S":{"item":"ashcc:seat"}},"pattern":["G G","CSC"],"result":{"count":1,"id":"ashcc:cockpit"},"type":"minecraft:crafting_shaped"}
