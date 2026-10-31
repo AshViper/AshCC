@@ -42,3 +42,8 @@ run-test/
 run-gt/
 tools/aa_sim/node_modules/
 tools/radar3d_sim/frames.js
+
+### Crash / output logs ###
+hs_err_pid*.log
+replay_pid*.log
+*.log
