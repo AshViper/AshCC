@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "ashcc:block/rotary_autocannon_breech_side",
+    "north": "ashcc:block/rotary_autocannon_breech_end",
+    "south": "ashcc:block/rotary_autocannon_breech_end",
+    "east": "ashcc:block/rotary_autocannon_breech_side",
+    "west": "ashcc:block/rotary_autocannon_breech_side",
+    "up": "ashcc:block/rotary_autocannon_breech_side",
+    "down": "ashcc:block/rotary_autocannon_breech_side"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "ashcc:block/thruster_side",
+    "north": "ashcc:block/thruster_nozzle_active",
+    "south": "ashcc:block/thruster_back",
+    "east": "ashcc:block/thruster_side",
+    "west": "ashcc:block/thruster_side",
+    "up": "ashcc:block/thruster_side",
+    "down": "ashcc:block/thruster_side"
+  }
+}

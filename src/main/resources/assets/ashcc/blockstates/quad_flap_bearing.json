@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "ashcc:block/quad_flap_bearing"
+    },
+    "facing=east": {
+      "model": "ashcc:block/quad_flap_bearing",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "ashcc:block/quad_flap_bearing",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "ashcc:block/quad_flap_bearing",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "ashcc:block/quad_flap_bearing",
+      "x": 270
+    },
+    "facing=down": {
+      "model": "ashcc:block/quad_flap_bearing",
+      "x": 90
+    }
+  }
+}

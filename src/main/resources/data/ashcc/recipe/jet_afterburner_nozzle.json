@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "FBF",
+    "BNB",
+    "FBF"
+  ],
+  "key": {
+    "F": {
+      "item": "minecraft:fire_charge"
+    },
+    "B": {
+      "item": "minecraft:blaze_rod"
+    },
+    "N": {
+      "item": "ashcc:jet_nozzle"
+    }
+  },
+  "result": {
+    "id": "ashcc:jet_afterburner_nozzle",
+    "count": 1
+  }
+}

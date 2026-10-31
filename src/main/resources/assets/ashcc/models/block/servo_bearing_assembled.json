@@ -1,0 +1,45 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "side": "ashcc:block/servo_bearing_side",
+    "top": "ashcc:block/servo_bearing_top",
+    "body_top": "ashcc:block/servo_bearing_body_top",
+    "back": "ashcc:block/servo_bearing_back",
+    "particle": "ashcc:block/servo_bearing_side"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        10,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#side"
+        },
+        "south": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "west": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#body_top"
+        },
+        "down": {
+          "texture": "#back",
+          "cullface": "down"
+        }
+      }
+    }
+  ]
+}

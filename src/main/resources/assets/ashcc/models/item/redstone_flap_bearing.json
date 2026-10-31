@@ -1,0 +1,8 @@
+{
+  "parent": "create:block/bearing/item",
+  "textures": {
+    "back": "ashcc:block/redstone_flap_bearing_back",
+    "side": "ashcc:block/redstone_flap_bearing_side",
+    "top": "create:block/bearing_top"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "active=false": {
+      "model": "ashcc:block/antigravity_core"
+    },
+    "active=true": {
+      "model": "ashcc:block/antigravity_core_active"
+    }
+  }
+}

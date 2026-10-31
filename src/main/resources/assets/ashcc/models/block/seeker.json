@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "ashcc:block/seeker_side",
+    "north": "ashcc:block/seeker_front",
+    "south": "ashcc:block/thruster_back",
+    "east": "ashcc:block/seeker_side",
+    "west": "ashcc:block/seeker_side",
+    "up": "ashcc:block/seeker_side",
+    "down": "ashcc:block/seeker_side"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "particle": "ashcc:block/transponder_side",
+    "side": "ashcc:block/transponder_side",
+    "top": "ashcc:block/transponder_top",
+    "bottom": "ashcc:block/radar_bottom"
+  }
+}

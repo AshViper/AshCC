@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "ashcc:block/rotary_autocannon_breech"
+    },
+    "facing=east": {
+      "model": "ashcc:block/rotary_autocannon_breech",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "ashcc:block/rotary_autocannon_breech",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "ashcc:block/rotary_autocannon_breech",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "ashcc:block/rotary_autocannon_breech",
+      "x": 270
+    },
+    "facing=down": {
+      "model": "ashcc:block/rotary_autocannon_breech",
+      "x": 90
+    }
+  }
+}

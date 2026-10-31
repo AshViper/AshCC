@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    " D ",
+    "ICI",
+    "IRI"
+  ],
+  "key": {
+    "D": { "item": "minecraft:daylight_detector" },
+    "I": { "item": "minecraft:iron_ingot" },
+    "C": { "item": "minecraft:compass" },
+    "R": { "item": "minecraft:redstone_block" }
+  },
+  "result": { "id": "ashcc:radar", "count": 1 }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "ashcc:block/link_hub_top",
+    "side": "ashcc:block/link_hub"
+  }
+}

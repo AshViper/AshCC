@@ -1,0 +1,27 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "createbigcannons"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "SBS",
+    "BSB",
+    "SBS"
+  ],
+  "key": {
+    "S": {
+      "item": "createbigcannons:steel_ingot"
+    },
+    "B": {
+      "item": "createbigcannons:steel_autocannon_barrel"
+    }
+  },
+  "result": {
+    "id": "ashcc:rotary_autocannon_barrel",
+    "count": 4
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "particle": "ashcc:block/antigravity_core_side",
+    "side": "ashcc:block/antigravity_core_side",
+    "end": "ashcc:block/antigravity_core_top"
+  }
+}

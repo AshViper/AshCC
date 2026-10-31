@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "active=false": {
+      "model": "ashcc:block/laser"
+    },
+    "active=true": {
+      "model": "ashcc:block/laser_active"
+    }
+  }
+}

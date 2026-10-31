@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "ashcc:block/laser_cannon_emitter_side",
+    "north": "ashcc:block/laser_cannon_emitter_front",
+    "south": "ashcc:block/laser_cannon_emitter_back",
+    "east": "ashcc:block/laser_cannon_emitter_side",
+    "west": "ashcc:block/laser_cannon_emitter_side",
+    "up": "ashcc:block/laser_cannon_emitter_side",
+    "down": "ashcc:block/laser_cannon_emitter_side"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "aa-sim",
+  "private": true,
+  "description": "Mock CC + AshCC radar/laser world for lua/aa_laser.lua",
+  "dependencies": { "fengari": "^0.1.4" }
+}

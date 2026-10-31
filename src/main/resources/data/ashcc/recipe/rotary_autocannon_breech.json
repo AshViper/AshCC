@@ -1,0 +1,33 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "createbigcannons"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "SGS",
+    "MBM",
+    "SGS"
+  ],
+  "key": {
+    "S": {
+      "item": "createbigcannons:steel_ingot"
+    },
+    "G": {
+      "item": "create:cogwheel"
+    },
+    "M": {
+      "item": "create:precision_mechanism"
+    },
+    "B": {
+      "item": "createbigcannons:steel_autocannon_breech"
+    }
+  },
+  "result": {
+    "id": "ashcc:rotary_autocannon_breech",
+    "count": 1
+  }
+}

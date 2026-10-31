@@ -1,0 +1,7 @@
+{
+  "parent": "create:block/bearing/block",
+  "textures": {
+    "back": "ashcc:block/flap_bearing_back",
+    "side": "ashcc:block/flap_bearing_side"
+  }
+}

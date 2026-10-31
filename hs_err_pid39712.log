@@ -1,0 +1,244 @@
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (mmap) failed to map 805306368 bytes. Error detail: G1 virtual space
+# Possible reasons:
+#   The system is out of physical RAM or swap space
+#   This process is running with CompressedOops enabled, and the Java Heap may be blocking the growth of the native heap
+# Possible solutions:
+#   Reduce memory load on the system
+#   Increase physical memory or swap space
+#   Check if swap backing store is full
+#   Decrease Java heap size (-Xmx/-Xms)
+#   Decrease number of Java threads
+#   Decrease Java thread stack sizes (-Xss)
+#   Set larger code cache with -XX:ReservedCodeCacheSize=
+#   JVM is running with Zero Based Compressed Oops mode in which the Java heap is
+#     placed in the first 32GB address space. The Java Heap base address is the
+#     maximum limit for the native heap growth. Please use -XX:HeapBaseMinAddress
+#     to set the Java Heap base and to place the Java Heap above 32GB virtual address.
+# This output file may be truncated or incomplete.
+#
+#  Out of Memory Error (os_windows.cpp:3714), pid=39712, tid=33828
+#
+# JRE version:  (21.0.11+10) (build )
+# Java VM: OpenJDK 64-Bit Server VM (21.0.11+10-LTS, mixed mode, sharing, tiered, compressed oops, compressed class ptrs, g1 gc, windows-amd64)
+# No core dump will be written. Minidumps are not enabled by default on client versions of Windows
+#
+
+---------------  S U M M A R Y ------------
+
+Command Line: -Dstderr.encoding=UTF-8 -Dstdout.encoding=UTF-8 -Dfile.encoding=UTF-8 -Duser.country=JP -Duser.language=ja -Duser.variant C:\Users\nagis\.gradle\caches\modules-2\files-2.1\net.neoforged\neoform-runtime\2.0.31\8aa24964ce5b7a55bcec656f1ba7d987dab642b7\neoform-runtime-2.0.31-all.jar --home-dir C:\Users\nagis\.gradle\caches\neoformruntime --work-dir F:\Java\AshCC\build\tmp\neoformruntime download-assets --write-properties F:\Java\AshCC\build\moddev\minecraft_assets.properties --neoforge net.neoforged:neoforge:21.1.235:userdev --artifact-manifest F:\Java\AshCC\build\tmp\downloadAssets\nfrt_artifact_manifest.properties --warn-on-artifact-manifest-miss
+
+Host: Intel(R) Core(TM) i7-10700KF CPU @ 3.80GHz, 16 cores, 47G,  Windows 11 , 64 bit Build 26100 (10.0.26100.9711)
+Time: Sun Oct 25 22:11:08 2026 elapsed time: 0.011135 seconds (0d 0h 0m 0s)
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x000002e05a0faa50):  JavaThread "Unknown thread" [_thread_in_vm, id=33828, stack(0x000000e635600000,0x000000e635700000) (1024K)]
+
+Stack: [0x000000e635600000,0x000000e635700000]
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+V  [jvm.dll+0x6d7e19]
+V  [jvm.dll+0x8b5096]
+V  [jvm.dll+0x8b764e]
+V  [jvm.dll+0x8b7d33]
+V  [jvm.dll+0x284596]
+V  [jvm.dll+0x6d4735]
+V  [jvm.dll+0x6c845a]
+V  [jvm.dll+0x35ef08]
+V  [jvm.dll+0x366b46]
+V  [jvm.dll+0x3b7c2e]
+V  [jvm.dll+0x3b7ed8]
+V  [jvm.dll+0x33310c]
+V  [jvm.dll+0x333c5b]
+V  [jvm.dll+0x87f04b]
+V  [jvm.dll+0x3c4bb1]
+V  [jvm.dll+0x868295]
+V  [jvm.dll+0x457c41]
+V  [jvm.dll+0x459831]
+C  [jli.dll+0x52dc]
+C  [ucrtbase.dll+0x2cd30]
+C  [KERNEL32.DLL+0x2dda7]
+C  [ntdll.dll+0x7ee4c]
+
+
+---------------  P R O C E S S  ---------------
+
+Threads class SMR info:
+_java_thread_list=0x00007fff9d23b1c8, length=0, elements={
+}
+
+Java Threads: ( => current thread )
+Total: 0
+
+Other Threads:
+  0x000002e05a799570 WorkerThread "GC Thread#0"                     [id=3472, stack(0x000000e635700000,0x000000e635800000) (1024K)]
+  0x000002e05a79d430 ConcurrentGCThread "G1 Main Marker"            [id=12496, stack(0x000000e635800000,0x000000e635900000) (1024K)]
+  0x000002e07741bfe0 WorkerThread "G1 Conc#0"                       [id=39620, stack(0x000000e635900000,0x000000e635a00000) (1024K)]
+
+[error occurred during error reporting (printing all threads), id 0xc0000005, EXCEPTION_ACCESS_VIOLATION (0xc0000005) at pc=0x00007fff9c9357f7]
+VM state: not at safepoint (not fully initialized)
+
+VM Mutex/Monitor currently owned by a thread:  ([mutex/lock_event])
+[0x00007fff9d2af670] Heap_lock - owner thread: 0x000002e05a0faa50
+
+Heap address: 0x0000000502000000, size: 12256 MB, Compressed Oops mode: Zero based, Oop shift amount: 3
+
+CDS archive(s) mapped at: [0x0000000000000000-0x0000000000000000-0x0000000000000000), size 0, SharedBaseAddress: 0x0000000800000000, ArchiveRelocationMode: 1.
+Narrow klass base: 0x0000000000000000, Narrow klass shift: 0, Narrow klass range: 0x0
+
+GC Precious Log:
+ CardTable entry size: 512
+ Card Set container configuration: InlinePtr #cards 4 size 8 Array Of Cards #cards 64 size 144 Howl #buckets 8 coarsen threshold 14745 Howl Bitmap #cards 2048 size 272 coarsen threshold 1843 Card regions per heap region 1 cards per card region 16384
+
+Heap:
+ garbage-first heap   total 0K, used 0K [0x0000000502000000, 0x0000000800000000)
+  region size 8192K, 0 young (0K), 0 survivors (0K)
+
+[error occurred during error reporting (printing heap information), id 0xc0000005, EXCEPTION_ACCESS_VIOLATION (0xc0000005) at pc=0x00007fff9cd21789]
+GC Heap History (0 events):
+No events
+
+Dll operation events (1 events):
+Event: 0.006 Loaded shared library C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot\bin\java.dll
+
+Deoptimization events (0 events):
+No events
+
+Classes loaded (0 events):
+No events
+
+Classes unloaded (0 events):
+No events
+
+Classes redefined (0 events):
+No events
+
+Internal exceptions (0 events):
+No events
+
+ZGC Phase Switch (0 events):
+No events
+
+VM Operations (0 events):
+No events
+
+Memory protections (0 events):
+No events
+
+Nmethod flushes (0 events):
+No events
+
+Events (0 events):
+No events
+
+
+Dynamic libraries:
+0x00007ff784cb0000 - 0x00007ff784cbe000 	C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot\bin\java.exe
+0x00007ff8c2ce0000 - 0x00007ff8c2f48000 	C:\WINDOWS\SYSTEM32\ntdll.dll
+0x00007ff8c2040000 - 0x00007ff8c210b000 	C:\WINDOWS\System32\KERNEL32.DLL
+0x00007ff8c0000000 - 0x00007ff8c0401000 	C:\WINDOWS\System32\KERNELBASE.dll
+0x00007ff8c0580000 - 0x00007ff8c06cc000 	C:\WINDOWS\System32\ucrtbase.dll
+0x00007ff8ba830000 - 0x00007ff8ba84e000 	C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot\bin\VCRUNTIME140.dll
+0x00007ff8ba810000 - 0x00007ff8ba828000 	C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot\bin\jli.dll
+0x00007ff8c09f0000 - 0x00007ff8c0bc7000 	C:\WINDOWS\System32\USER32.dll
+0x00007ff8a0100000 - 0x00007ff8a0391000 	C:\WINDOWS\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.26100.9711_none_3e07b8b0e334e825\COMCTL32.dll
+0x00007ff8c0870000 - 0x00007ff8c0897000 	C:\WINDOWS\System32\win32u.dll
+0x00007ff8c0eb0000 - 0x00007ff8c0f59000 	C:\WINDOWS\System32\msvcrt.dll
+0x00007ff8c1ae0000 - 0x00007ff8c1b0b000 	C:\WINDOWS\System32\GDI32.dll
+0x00007ff8bfed0000 - 0x00007ff8bfffa000 	C:\WINDOWS\System32\gdi32full.dll
+0x00007ff8c0410000 - 0x00007ff8c04b3000 	C:\WINDOWS\System32\msvcp_win.dll
+0x00007ff8c2bf0000 - 0x00007ff8c2c21000 	C:\WINDOWS\System32\IMM32.DLL
+0x00007ff8b9a30000 - 0x00007ff8b9a3c000 	C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot\bin\vcruntime140_1.dll
+0x00007ff89a6d0000 - 0x00007ff89a75d000 	C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot\bin\msvcp140.dll
+0x00007fff9c5f0000 - 0x00007fff9d392000 	C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot\bin\server\jvm.dll
+0x00007ff8c2760000 - 0x00007ff8c281c000 	C:\WINDOWS\System32\ADVAPI32.dll
+0x00007ff8c29d0000 - 0x00007ff8c2a78000 	C:\WINDOWS\System32\sechost.dll
+0x00007ff8c21f0000 - 0x00007ff8c2308000 	C:\WINDOWS\System32\RPCRT4.dll
+0x00007ff8c0bd0000 - 0x00007ff8c0c51000 	C:\WINDOWS\System32\WS2_32.dll
+0x00007ff8bfb60000 - 0x00007ff8bfbbe000 	C:\WINDOWS\SYSTEM32\POWRPROF.dll
+0x00007ff8afbe0000 - 0x00007ff8afc17000 	C:\WINDOWS\SYSTEM32\WINMM.dll
+0x00007ff8b8540000 - 0x00007ff8b854b000 	C:\WINDOWS\SYSTEM32\VERSION.dll
+0x00007ff8bfb40000 - 0x00007ff8bfb55000 	C:\WINDOWS\SYSTEM32\UMPDC.dll
+0x00007ff8beb40000 - 0x00007ff8beb5b000 	C:\WINDOWS\SYSTEM32\kernel.appcore.dll
+0x00007ff8b99b0000 - 0x00007ff8b99ba000 	C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot\bin\jimage.dll
+0x00007ff8bcb90000 - 0x00007ff8bcddc000 	C:\WINDOWS\SYSTEM32\DBGHELP.DLL
+0x00007ff8c0f60000 - 0x00007ff8c12eb000 	C:\WINDOWS\System32\combase.dll
+0x00007ff8c2110000 - 0x00007ff8c21e9000 	C:\WINDOWS\System32\OLEAUT32.dll
+0x00007ff88be80000 - 0x00007ff88bebb000 	C:\WINDOWS\SYSTEM32\dbgcore.DLL
+0x00007ff8c04c0000 - 0x00007ff8c056c000 	C:\WINDOWS\System32\bcryptPrimitives.dll
+0x00007ff8b98b0000 - 0x00007ff8b98d0000 	C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot\bin\java.dll
+
+JVMTI agents: none
+
+dbghelp: loaded successfully - version: 4.0.5 - missing functions: none
+symbol engine: initialized successfully - sym options: 0x614 - pdb path: .;C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot\bin;C:\WINDOWS\SYSTEM32;C:\WINDOWS\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.26100.9711_none_3e07b8b0e334e825;C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot\bin\server
+
+VM Arguments:
+jvm_args: -Dstderr.encoding=UTF-8 -Dstdout.encoding=UTF-8 -Dfile.encoding=UTF-8 -Duser.country=JP -Duser.language=ja -Duser.variant 
+java_command: C:\Users\nagis\.gradle\caches\modules-2\files-2.1\net.neoforged\neoform-runtime\2.0.31\8aa24964ce5b7a55bcec656f1ba7d987dab642b7\neoform-runtime-2.0.31-all.jar --home-dir C:\Users\nagis\.gradle\caches\neoformruntime --work-dir F:\Java\AshCC\build\tmp\neoformruntime download-assets --write-properties F:\Java\AshCC\build\moddev\minecraft_assets.properties --neoforge net.neoforged:neoforge:21.1.235:userdev --artifact-manifest F:\Java\AshCC\build\tmp\downloadAssets\nfrt_artifact_manifest.properties --warn-on-artifact-manifest-miss
+java_class_path (initial): C:\Users\nagis\.gradle\caches\modules-2\files-2.1\net.neoforged\neoform-runtime\2.0.31\8aa24964ce5b7a55bcec656f1ba7d987dab642b7\neoform-runtime-2.0.31-all.jar
+Launcher Type: SUN_STANDARD
+
+[Global flags]
+     intx CICompilerCount                          = 12                                        {product} {ergonomic}
+     uint ConcGCThreads                            = 3                                         {product} {ergonomic}
+     uint G1ConcRefinementThreads                  = 13                                        {product} {ergonomic}
+   size_t G1HeapRegionSize                         = 8388608                                   {product} {ergonomic}
+    uintx GCDrainStackTargetSize                   = 64                                        {product} {ergonomic}
+   size_t InitialHeapSize                          = 805306368                                 {product} {ergonomic}
+   size_t MarkStackSize                            = 4194304                                   {product} {ergonomic}
+   size_t MaxHeapSize                              = 12851347456                               {product} {ergonomic}
+   size_t MinHeapDeltaBytes                        = 8388608                                   {product} {ergonomic}
+   size_t MinHeapSize                              = 8388608                                   {product} {ergonomic}
+    uintx NonNMethodCodeHeapSize                   = 7602480                                {pd product} {ergonomic}
+    uintx NonProfiledCodeHeapSize                  = 122027880                              {pd product} {ergonomic}
+    uintx ProfiledCodeHeapSize                     = 122027880                              {pd product} {ergonomic}
+    uintx ReservedCodeCacheSize                    = 251658240                              {pd product} {ergonomic}
+     bool SegmentedCodeCache                       = true                                      {product} {ergonomic}
+   size_t SoftMaxHeapSize                          = 12851347456                            {manageable} {ergonomic}
+     bool UseCompressedOops                        = true                           {product lp64_product} {ergonomic}
+     bool UseG1GC                                  = true                                      {product} {ergonomic}
+     bool UseLargePagesIndividualAllocation        = false                                  {pd product} {ergonomic}
+
+Logging:
+Log output configuration:
+ #0: stdout all=warning uptime,level,tags foldmultilines=false
+ #1: stderr all=off uptime,level,tags foldmultilines=false
+
+Release file:
+<release file has not been read>
+Environment Variables:
+PATH=C:\Users\nagis\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\local\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\nagis\bin;C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot\bin;C:\Program Files\Eclipse Adoptium\jdk-17.0.18.8-hotspot\bin;C:\Program Files\Meta Horizon\Support\oculus-runtime;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\OpenSSH;C:\Program Files\dotnet;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Git\cmd;C:\Program Files\nodejs;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files\CMake\bin;G:\WorldPainter;C:\Program Files\playit_gg\bin;C:\Program Files (x86)\Windows Kits\10\Windows Performance Toolkit;C:\Users\nagis\.local\bin;C:\Users\nagis\AppData\Local\Programs\Muse Code\bin;C:\Users\nagis\.grok\bin;C:\Users\nagis\AppData\Local\hermes\node;C:\Users\nagis\AppData\Local\hermes\bin;C:\Users\nagis\AppData\Local\Programs\OpenAI\Codex\bin;C:\Users\nagis\AppData\Local\Programs\Python\Python312\Scripts;C:\Users\nagis\AppData\Local\Programs\Python\Python312;C:\Users\nagis\AppData\Local\Programs\Python\Launcher;C:\Users\nagis\AppData\Local\Microsoft\WindowsApps;C:\Users\nagis\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\nagis\AppData\Roaming\npm;C:\Users\nagis\AppData\Local\Programs\Antigravity\bin;C:\Users\nagis\.dotnet\tools;C:\Users\nagis\AppData\Local\Programs\Antigravity IDE\bin;C:\Users\nagis\AppData\Local\Programs\Ollama;C:\Users\nagis\AppData\Local\Microsoft\WinGet\Packages\astral-sh.uv_Microsoft.Winget.Source_8wekyb3d8bbwe;C:\Users\nagis\AppData\Local\Microsoft\WinGet\Packages\BurntSushi.ripgrep.MSVC_Microsoft.Winget.Source_8wekyb3d8bbwe\ripgrep-15.2.0-x86_64-pc-windows-msvc;C:\Users\nagis\AppData\Local\Programs\Cua\cua-driver\bin;C:\Users\nagis\AppData\Local\Kiro-Cli;C:\Users\nagis\AppData\Local\Microsoft\WinGet\Packages\SST.opencode_Microsoft.Winget.Source_8wekyb3d8bbwe;C:\Users\nagis\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-9.0.2-full_build\bin;C:\Users\nagis\AppData\Local\Programs\Microsoft VS Code\bin\copilot-shim;C:\Users\nagis\AppData\Local\Programs\Python\Python312;C:\Program Files\nodejs;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin\vendor_perl;C:\Program Files\Git\usr\bin\core_perl
+USERNAME=nagis
+SHELL=C:\Program Files\Git\usr\bin\bash.exe
+TERM=xterm-256color
+OS=Windows_NT
+PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 165 Stepping 5, GenuineIntel
+TMP=C:\Users\nagis\AppData\Local\Temp
+TEMP=C:\Users\nagis\AppData\Local\Temp
+
+
+
+
+Periodic native trim disabled
+
+---------------  S Y S T E M  ---------------
+
+OS:
+ Windows 11 , 64 bit Build 26100 (10.0.26100.9711)
+OS uptime: 0 days 11:20 hours
+Hyper-V role detected
+
+CPU: total 16 (initial active 16) (8 cores per cpu, 2 threads per core) family 6 model 165 stepping 5 microcode 0xec, cx8, cmov, fxsr, ht, mmx, 3dnowpref, sse, sse2, sse3, ssse3, sse4.1, sse4.2, popcnt, lzcnt, tsc, tscinvbit, avx, avx2, aes, erms, clmul, bmi1, bmi2, adx, fma, vzeroupper, clflush, clflushopt, hv, rdtscp, f16c
+Processor Information for the first 16 processors :
+  Max Mhz: 3792, Current Mhz: 3792, Mhz Limit: 3792
+
+Memory: 4k page, system-wide physical 49001M (1871M free)
+TotalPageFile size 88939M (AvailPageFile size 292M)
+current process WorkingSet (physical memory assigned to process): 13M, peak: 13M
+current process commit charge ("private bytes"): 71M, peak: 839M
+
+vm_info: OpenJDK 64-Bit Server VM (21.0.11+10-LTS) for windows-amd64 JRE (21.0.11+10-LTS), built on 2026-04-21T00:00:00Z by "admin" with MS VC++ 17.12 (VS2022)
+
+END.

@@ -1,0 +1,232 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.148'
+    id 'idea'
+}
+
+version = mod_version
+group = mod_group_id
+
+repositories {
+    maven {
+        name = 'SquidDev (CC: Tweaked)'
+        url = 'https://maven.squiddev.cc'
+        content {
+            includeGroup 'cc.tweaked'
+        }
+    }
+    // Sable is not published to a public maven; compile against the jars copied from the instance.
+    flatDir { dirs 'libs' }
+}
+
+base {
+    archivesName = mod_id
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+neoForge {
+    version = project.neo_version
+
+    parchment {
+        mappingsVersion = project.parchment_mappings_version
+        minecraftVersion = project.parchment_minecraft_version
+    }
+
+    runs {
+        client {
+            client()
+        }
+        server {
+            server()
+            programArgument '--nogui'
+        }
+        // In-game test environment: Create + Aeronautics + CC: Sable from the CurseForge instance, auto-created test world
+        testClient {
+            client()
+            gameDirectory = file('run-test')
+            systemProperty 'ashcc.testworld', (project.findProperty('world') ?: 'ashcc_test').toString()
+            // -PlaserShot: build the laser scene, take screenshots into run-test/screenshots and quit (devtest/LaserShot)
+            if (project.hasProperty('laserShot')) systemProperty 'ashcc.lasershot', 'true'
+            // -PmonitorShot: build HD monitors (wall, hologram floor, on a ship), draw, screenshot and quit (devtest/MonitorShot)
+            if (project.hasProperty('monitorShot')) systemProperty 'ashcc.monitorshot', 'true'
+            // -PantigravShot: fly a ship with the anti-gravity core via lua/antigrav_pilot.lua, screenshot and quit (devtest/AntigravShot)
+            // -PantigravShot=test runs lua/antigrav_test.lua on the ship instead
+            // -PcbcShot: CBC cannon mounts with a railgun, rotary and steel autocannon, then lua/cbc_turret.lua vs a ship (devtest/CbcShot)
+            // -PjetShot: jet engine at idle, military and afterburner, screenshot and quit (devtest/JetShot)
+            if (project.hasProperty('jetShot')) systemProperty 'ashcc.jetshot', (project.property('jetShot') ?: 'ground').toString()
+            if (project.hasProperty('cbcShot')) systemProperty 'ashcc.cbcshot', (project.property('cbcShot') ?: 'all').toString()
+            // -PconnectorShot: offset connector plates on each ninth of a face with blocks on them, tilted ones, one on a ship (devtest/ConnectorShot)
+            if (project.hasProperty('connectorShot')) systemProperty 'ashcc.connectorshot', 'true'
+            // -PpanelShot: control panels on floor, wall, ceiling and a ship; grabs a stick with the real keys (devtest/PanelShot)
+            if (project.hasProperty('panelShot')) systemProperty 'ashcc.panelshot', 'true'
+            if (project.hasProperty('antigravShot')) systemProperty 'ashcc.antigravshot', (project.property('antigravShot') ?: 'fly').toString()
+        }
+        gameTestServer {
+            type = "gameTestServer"
+            // Create for the flap bearing tests (synced from the instance; -PnoCreate to test without it)
+            gameDirectory = file('run-gt')
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+        configureEach {
+            logLevel = org.slf4j.event.Level.INFO
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
+}
+
+dependencies {
+    compileOnly "cc.tweaked:cc-tweaked-${minecraft_version}-core-api:${cc_version}"
+    compileOnly "cc.tweaked:cc-tweaked-${minecraft_version}-forge-api:${cc_version}"
+    localRuntime "cc.tweaked:cc-tweaked-${minecraft_version}-forge:${cc_version}"
+    // Link hub calls peripheral methods the same way CC's wired modem does (core/shared internals, pinned to cc_version)
+    compileOnly "cc.tweaked:cc-tweaked-${minecraft_version}-forge:${cc_version}"
+
+    // Optional: Sable (physics sub-levels used by Create Aeronautics)
+    compileOnly files('libs/sable-neoforge-1.21.1-2.0.3.jar', 'libs/sable-companion-common-1.21.1-1.6.0.jar',
+            'libs/veil-neoforge-1.21.1-4.1.4.jar')
+    // Optional: Create (flap bearing). Compiled against the instance's jar and the libraries it bundles
+    compileOnly fileTree('libs/create') { include '*.jar' }
+    // Optional: Create Modern Warfare (createarms, missiles/VLS/racks) and GeckoLib, which its block entities extend
+    compileOnly fileTree('libs/createarms') { include '*.jar' }
+    // Optional: Create Big Cannons (CC cannon mounts, rotary autocannon, railgun) and the projectile lib it needs
+    compileOnly fileTree('libs/createbigcannons') { include '*.jar' }
+    // Optional: Drive By Wire (cables carry the control panel's channels)
+    compileOnly fileTree('libs/drivebywire') { include '*.jar' }
+    if (!project.hasProperty('noSable')) {
+        localRuntime files('libs/sable-neoforge-1.21.1-2.0.3.jar')
+    }
+}
+
+// Mods for testClient, copied from the instance (CC and Sable are already on the dev classpath)
+def instanceMods = file((project.findProperty('instanceDir') ?: 'C:/Users/nagis/curseforge/minecraft/Instances/Aero_JPxAA_2.9.0') + '/mods')
+def clientMods = {
+    from(instanceMods) {
+        include 'create-1.21.1-*.jar'
+        include 'create-aeronautics-bundled-*.jar'
+        include 'cc_sable-*.jar'
+        include 'veil-neoforge-*.jar'
+        include 'jei-1.21.1-neoforge-*.jar'
+        include 'createarms-*.jar'
+        include 'geckolib-neoforge-*.jar'
+        include 'snassets*.jar'
+        // createarms loads Create Big Cannons classes even though it does not declare it
+        include 'createbigcannons-*.jar'
+        include 'ritchiesprojectilelib-*.jar'
+        // Create Crafts & Additions: alternators and the creative generator give the railgun its FE
+        include 'createaddition-*.jar'
+        // Create Diesel Generators: diesel, gasoline, ethanol, biodiesel as jet engine fuels
+        include 'createdieselgenerators-*.jar'
+        // Drive By Wire (only 0.3.0: the instance also holds an older jar) and Create Tweaked Controllers, which its mixins need
+        include 'drivebywire-0.3.0.jar'
+        include 'create_tweaked_controllers-*.jar'
+        // Sodium + Iris (and their Veil / Flywheel bridges) and Distant Horizons, as in the instance;
+        // -PnoShaders turns the shaderpack off, -PnoDH leaves Distant Horizons out
+        include 'sodium-neoforge-*.jar'
+        include 'iris-neoforge-*.jar'
+        include 'irisveil-*.jar'
+        include 'iris-flywheel-compat-*.jar'
+        if (!project.hasProperty('noDH')) include 'DistantHorizons-*.jar'
+    }
+}
+// The shaderpack (from the instance; -Pshaders=pack.zip picks another, default Complementary Reimagined) is copied and
+// switched on; -PnoShaders switches it off
+def instanceDir = file(project.findProperty('instanceDir') ?: 'C:/Users/nagis/curseforge/minecraft/Instances/Aero_JPxAA_2.9.0')
+def shaderPack = (project.findProperty('shaders') ?: 'ComplementaryReimagined_r5.8.1.zip').toString()
+def shadersOn = !project.hasProperty('noShaders')
+def syncShaders = tasks.register('syncShaders') {
+    def packs = file('run-test/shaderpacks')
+    def props = file('run-test/config/iris.properties')
+    def source = new File(instanceDir, 'shaderpacks/' + shaderPack)
+    def dh = file('run-test/config/DistantHorizons.toml')
+    doLast {
+        packs.mkdirs()
+        props.parentFile.mkdirs()
+        java.nio.file.Files.copy(source.toPath(), new File(packs, shaderPack).toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+        props.text = "enableShaders=${shadersOn}\nshaderPack=${shaderPack}\ndisableUpdateMessage=true\n"
+        // Distant Horizons' chat warning about the G1 collector would cover the screenshots (the file appears after the first run)
+        if (dh.exists()) dh.text = dh.text.replace('showGarbageCollectorWarning = true', 'showGarbageCollectorWarning = false')
+    }
+}
+def syncTestMods = tasks.register('syncTestMods', Sync) {
+    with copySpec(clientMods)
+    into 'run-test/mods'
+}
+tasks.matching { it.name == 'prepareTestClientRun' }.configureEach { dependsOn syncTestMods, syncShaders }
+// The plain client run gets the same mods (the jars in libs/ are compile-only and never reach the game)
+def syncClientMods = tasks.register('syncClientMods', Sync) {
+    with copySpec(clientMods)
+    into 'run/mods'
+}
+tasks.matching { it.name == 'prepareClientRun' }.configureEach { dependsOn syncClientMods }
+def syncGameTestMods = tasks.register('syncGameTestMods', Sync) {
+    if (!project.hasProperty('noCreate')) {
+        from(instanceMods) {
+            include 'create-1.21.1-*.jar'
+            // Create Diesel Generators fluids for the jet engine fuel tests
+            include 'createdieselgenerators-*.jar'
+            // Create Big Cannons for the cannon mount / rotary autocannon / railgun tests; -PnoCbc to test without it
+            if (!project.hasProperty('noCbc')) {
+                include 'createbigcannons-*.jar'
+                include 'ritchiesprojectilelib-*.jar'
+            }
+            // Create Simulated (in the Aeronautics bundle) for the servo bearing tests; -PnoAero to test without it.
+            // Aeronautics needs Sable, so -PnoSable drops it too
+            if (!project.hasProperty('noAero') && !project.hasProperty('noSable')) {
+                include 'create-aeronautics-bundled-*.jar'
+                include 'veil-neoforge-*.jar'
+                // Drive By Wire (needs Create, Sable and Create Tweaked Controllers) for the control panel cable test
+                include 'drivebywire-0.3.0.jar'
+                include 'create_tweaked_controllers-*.jar'
+                // createarms (needs Aeronautics) for the missile peripheral tests; -PnoArms to test without it
+                if (!project.hasProperty('noArms')) {
+                    include 'createarms-*.jar'
+                    include 'geckolib-neoforge-*.jar'
+                    // createarms loads Create Big Cannons classes even though it does not declare it
+                    include 'createbigcannons-*.jar'
+                    include 'ritchiesprojectilelib-*.jar'
+                }
+            }
+        }
+    }
+    into 'run-gt/mods'
+}
+tasks.matching { it.name == 'prepareGameTestServerRun' }.configureEach { dependsOn syncGameTestMods }
+
+var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from "src/main/templates"
+    into "build/generated/sources/modMetadata"
+}
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.named('jar', Jar) {
+    exclude 'com/ashcc/gametest/**'
+    exclude 'com/ashcc/devtest/**'
+    exclude 'data/ashcc/structure/**'
+}

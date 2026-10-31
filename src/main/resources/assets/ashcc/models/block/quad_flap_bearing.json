@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "ashcc:block/quad_flap_bearing_side",
+    "north": "ashcc:block/quad_flap_bearing_front",
+    "south": "ashcc:block/quad_flap_bearing_end",
+    "east": "ashcc:block/quad_flap_bearing_side",
+    "west": "ashcc:block/quad_flap_bearing_side",
+    "up": "ashcc:block/quad_flap_bearing_side",
+    "down": "ashcc:block/quad_flap_bearing_side"
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "jet_engine.core": { "subtitle": "subtitles.ashcc.jet_engine.core", "sounds": [ { "name": "ashcc:jet/core", "stream": true } ] },
+  "jet_engine.afterburner": { "subtitle": "subtitles.ashcc.jet_engine.afterburner", "sounds": [ { "name": "ashcc:jet/afterburner", "stream": true } ] }
+}

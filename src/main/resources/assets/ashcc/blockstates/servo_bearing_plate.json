@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "facing=up": {
+      "model": "ashcc:block/servo_bearing_plate"
+    },
+    "facing=down": {
+      "model": "ashcc:block/servo_bearing_plate",
+      "x": 180
+    },
+    "facing=north": {
+      "model": "ashcc:block/servo_bearing_plate",
+      "x": 90
+    },
+    "facing=south": {
+      "model": "ashcc:block/servo_bearing_plate",
+      "x": 90,
+      "y": 180
+    },
+    "facing=east": {
+      "model": "ashcc:block/servo_bearing_plate",
+      "x": 90,
+      "y": 90
+    },
+    "facing=west": {
+      "model": "ashcc:block/servo_bearing_plate",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

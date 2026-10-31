@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable_with_bottom",
+  "textures": {
+    "top": "ashcc:block/radar_top",
+    "bottom": "ashcc:block/radar_bottom",
+    "side": "ashcc:block/radar_side",
+    "front": "ashcc:block/radar_front"
+  }
+}

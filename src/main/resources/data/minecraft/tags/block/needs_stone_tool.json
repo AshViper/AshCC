@@ -1,0 +1,11 @@
+{
+  "values": [
+    "ashcc:decoy_launcher",
+    "ashcc:transponder",
+    "ashcc:laser",
+    "ashcc:seeker",
+    "ashcc:radar",
+    "ashcc:thruster",
+    "ashcc:link_hub"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "ashcc:block/laser_cannon_lens"
+    },
+    "facing=east": {
+      "model": "ashcc:block/laser_cannon_lens",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "ashcc:block/laser_cannon_lens",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "ashcc:block/laser_cannon_lens",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "ashcc:block/laser_cannon_lens",
+      "x": 270
+    },
+    "facing=down": {
+      "model": "ashcc:block/laser_cannon_lens",
+      "x": 90
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "createbigcannons"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "SGS",
+    "GDG",
+    "SGS"
+  ],
+  "key": {
+    "S": {
+      "item": "createbigcannons:steel_ingot"
+    },
+    "G": {
+      "item": "minecraft:tinted_glass"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    }
+  },
+  "result": {
+    "id": "ashcc:laser_cannon_lens",
+    "count": 2
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "ashcc:block/decoy_launcher_side",
+    "north": "ashcc:block/decoy_launcher_front",
+    "south": "ashcc:block/thruster_back",
+    "east": "ashcc:block/decoy_launcher_side",
+    "west": "ashcc:block/decoy_launcher_side",
+    "up": "ashcc:block/decoy_launcher_side",
+    "down": "ashcc:block/decoy_launcher_side"
+  }
+}

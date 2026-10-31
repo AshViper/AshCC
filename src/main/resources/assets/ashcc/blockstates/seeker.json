@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "ashcc:block/seeker"
+    },
+    "facing=east": {
+      "model": "ashcc:block/seeker",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "ashcc:block/seeker",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "ashcc:block/seeker",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "ashcc:block/seeker",
+      "x": 270
+    },
+    "facing=down": {
+      "model": "ashcc:block/seeker",
+      "x": 90
+    }
+  }
+}

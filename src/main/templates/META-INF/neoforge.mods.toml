@@ -1,0 +1,49 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="nagis"
+description='''
+CC: Tweaked peripherals. Radar: a single-block sensor that detects entities and Sable sub-levels (Create Aeronautics ships).
+CC: Tweaked 用ペリフェラル。レーダー: エンティティと Sable の Sub-Level（Create Aeronautics の機体）を1ブロックで検知する。
+'''
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="[${neo_version},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="computercraft"
+    type="required"
+    versionRange="[1.117.1,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="sable"
+    type="optional"
+    versionRange="[2.0.0,)"
+    ordering="AFTER"
+    side="BOTH"
+
+# Create Modern Warfare: CC peripherals on its launchers (compiled against 1.0.0)
+[[dependencies.${mod_id}]]
+    modId="createarms"
+    type="optional"
+    versionRange="[1.0.0,)"
+    ordering="AFTER"
+    side="BOTH"

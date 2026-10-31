@@ -1,0 +1,27 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "createbigcannons"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "CSC",
+    "CSC",
+    "CSC"
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:copper_block"
+    },
+    "S": {
+      "item": "createbigcannons:steel_ingot"
+    }
+  },
+  "result": {
+    "id": "ashcc:railgun_rail",
+    "count": 2
+  }
+}

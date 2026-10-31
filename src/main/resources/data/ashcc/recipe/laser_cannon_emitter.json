@@ -1,0 +1,33 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "createbigcannons"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "SRS",
+    "DLD",
+    "SRS"
+  ],
+  "key": {
+    "S": {
+      "item": "createbigcannons:steel_block"
+    },
+    "R": {
+      "item": "minecraft:redstone_block"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "L": {
+      "item": "ashcc:laser"
+    }
+  },
+  "result": {
+    "id": "ashcc:laser_cannon_emitter",
+    "count": 1
+  }
+}

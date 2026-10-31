@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "ashcc:block/railgun_rail"
+    },
+    "facing=east": {
+      "model": "ashcc:block/railgun_rail",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "ashcc:block/railgun_rail",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "ashcc:block/railgun_rail",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "ashcc:block/railgun_rail",
+      "x": 270
+    },
+    "facing=down": {
+      "model": "ashcc:block/railgun_rail",
+      "x": 90
+    }
+  }
+}

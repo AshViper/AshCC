@@ -1,0 +1,1382 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AshCC Lua API</title>
+<style>
+:root {
+  --bg: #f6f6f3; --panel: #ffffff; --panel-2: #fafaf8; --text: #1d1f23; --muted: #5d6470; --line: #e3e4e8; --line-strong: #cfd2d8;
+  --accent: #b5481f; --accent-soft: #fbeee8; --code-bg: #f1f2f4; --tag: #2f6f4f; --tag-bg: #e6f2eb;
+  --warn: #8a5a00; --warn-bg: #fff4dc; --info: #2d5b9a; --info-bg: #e8f0fb;
+  --syn-kw: #a1356b; --syn-str: #2f7a3f; --syn-num: #a35a00; --syn-com: #8a8f98; --syn-fn: #2d5b9a;
+  --mark: #ffe08a; --shadow: 0 1px 2px rgba(20, 22, 26, .04), 0 4px 14px rgba(20, 22, 26, .04);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131518; --panel: #1b1e22; --panel-2: #202429; --text: #e6e7ea; --muted: #9aa1ac; --line: #2b2f35; --line-strong: #3b4048;
+    --accent: #ff8a5c; --accent-soft: #3a241b; --code-bg: #23272d; --tag: #7fd1a3; --tag-bg: #1d3328;
+    --warn: #f3c66b; --warn-bg: #3a2f17; --info: #8db8f2; --info-bg: #1c2a3d;
+    --syn-kw: #f08fbf; --syn-str: #9bd68f; --syn-num: #f3b26b; --syn-com: #7d848f; --syn-fn: #8db8f2;
+    --mark: #6b5418; --shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131518; --panel: #1b1e22; --panel-2: #202429; --text: #e6e7ea; --muted: #9aa1ac; --line: #2b2f35; --line-strong: #3b4048;
+  --accent: #ff8a5c; --accent-soft: #3a241b; --code-bg: #23272d; --tag: #7fd1a3; --tag-bg: #1d3328;
+  --warn: #f3c66b; --warn-bg: #3a2f17; --info: #8db8f2; --info-bg: #1c2a3d;
+  --syn-kw: #f08fbf; --syn-str: #9bd68f; --syn-num: #f3b26b; --syn-com: #7d848f; --syn-fn: #8db8f2;
+  --mark: #6b5418; --shadow: none;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: 76px; scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.75 "Segoe UI", "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
+}
+code, pre, kbd, .mono { font-family: "Cascadia Mono", "Consolas", "Menlo", monospace; font-size: 13.5px; }
+code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+pre { background: var(--code-bg); padding: 14px 16px; border-radius: 10px; overflow-x: auto; line-height: 1.6; margin: 0; }
+pre code { background: none; padding: 0; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { font: inherit; color: inherit; }
+mark { background: var(--mark); color: inherit; padding: 0 1px; border-radius: 2px; }
+.hidden { display: none !important; }
+
+/* 骨組み */
+.layout { display: grid; grid-template-columns: 272px minmax(0, 1fr); min-height: 100vh; }
+aside {
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  border-right: 1px solid var(--line); background: var(--panel); padding: 20px 12px 40px;
+}
+.brand { display: block; font-weight: 700; font-size: 19px; color: var(--text); padding: 0 10px; }
+.brand:hover { text-decoration: none; }
+.brand span { color: var(--accent); }
+.brand em { font-style: normal; font-weight: 600; font-size: 15px; color: var(--muted); margin-left: 2px; }
+.sub { color: var(--muted); font-size: 12px; line-height: 1.6; margin: 4px 10px 8px; }
+nav .group { color: var(--muted); font-size: 11.5px; font-weight: 700; letter-spacing: .06em; margin: 18px 10px 4px; }
+nav a {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+  padding: 5px 10px; border-radius: 7px; color: var(--text); font-size: 14px; line-height: 1.5;
+}
+nav a:hover { background: var(--panel-2); text-decoration: none; }
+nav a.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+nav a small { color: var(--muted); font-family: "Cascadia Mono", "Consolas", monospace; font-size: 11px; font-weight: 400; white-space: nowrap; }
+.backdrop, .topbar .menu { display: none; }
+
+main { min-width: 0; }
+.topbar {
+  position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 10px;
+  padding: 10px 32px; border-bottom: 1px solid var(--line);
+  background: var(--bg); background: color-mix(in srgb, var(--bg) 86%, transparent);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+.searchbox { position: relative; flex: 1; max-width: 560px; }
+.searchbox svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+#search {
+  width: 100%; padding: 8px 40px 8px 36px; border: 1px solid var(--line-strong); border-radius: 9px;
+  background: var(--panel); color: var(--text); font: inherit; font-size: 14px; outline: none;
+}
+#search:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.searchbox kbd {
+  position: absolute; right: 9px; top: 50%; transform: translateY(-50%); font-size: 11.5px; color: var(--muted);
+  border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 5px; padding: 0 6px; line-height: 1.5; background: var(--bg);
+}
+.count { color: var(--muted); font-size: 13px; white-space: nowrap; }
+.iconbtn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; min-width: 36px; padding: 0 10px;
+  border: 1px solid var(--line-strong); border-radius: 9px; background: var(--panel); cursor: pointer; font-size: 13px; color: var(--text);
+}
+.iconbtn:hover { border-color: var(--accent); color: var(--accent); }
+.topbar .spacer { flex: 1; }
+
+.page { padding: 32px 32px 96px; max-width: 1120px; }
+h1 { font-size: 30px; line-height: 1.3; margin: 0 0 8px; }
+.lead { color: var(--muted); margin: 0 0 14px; max-width: 760px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); margin: 0 0 8px; }
+.legend > span { display: inline-flex; align-items: center; gap: 6px; }
+.legend kbd { font-size: 11.5px; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 5px; padding: 0 6px; line-height: 1.5; background: var(--panel); }
+
+/* 一覧カード */
+.ov-group > h2 { font-size: 12.5px; font-weight: 700; color: var(--muted); letter-spacing: .06em; margin: 26px 0 8px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.card {
+  display: flex; flex-direction: column; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  padding: 12px 14px; color: var(--text); box-shadow: var(--shadow); transition: border-color .15s, transform .15s;
+}
+.card:hover { border-color: var(--accent); text-decoration: none; transform: translateY(-1px); }
+.card .t { font-weight: 600; }
+.card .m { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--muted); }
+.card .m code { background: none; padding: 0; font-size: 12px; min-width: 0; overflow-wrap: anywhere; }
+.card .m > span { white-space: nowrap; }
+.card .badges { margin: 6px 0 0; }
+.card .badge { white-space: normal; }
+#content { margin-top: 36px; }
+
+/* 周辺機器の節 */
+section.per {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px; margin: 0 0 26px;
+  box-shadow: var(--shadow); overflow: hidden;
+}
+.per-head { padding: 20px 24px 16px; border-bottom: 1px solid var(--line); background: var(--panel-2); }
+.eyebrow { font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: .05em; }
+.per-head h2 { margin: 2px 0 0; font-size: 23px; line-height: 1.35; }
+.per-head h2 a { color: inherit; }
+.badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; }
+.badge { font-size: 12px; line-height: 1.7; padding: 0 9px; border-radius: 999px; background: var(--tag-bg); color: var(--tag); white-space: nowrap; }
+.badge.req { background: var(--warn-bg); color: var(--warn); }
+.badge.id { background: var(--code-bg); color: var(--muted); font-family: "Cascadia Mono", "Consolas", monospace; }
+.head-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
+.snippet {
+  display: inline-flex; align-items: center; gap: 10px; max-width: 100%; padding: 4px 6px 4px 12px; cursor: pointer;
+  background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; text-align: left;
+}
+.snippet code { background: none; padding: 0; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.snippet .hint { font-size: 11.5px; color: var(--muted); border-left: 1px solid var(--line-strong); padding: 0 6px 0 10px; white-space: nowrap; }
+.snippet:hover { border-color: var(--accent); }
+.subnav { display: flex; flex-wrap: wrap; gap: 6px; }
+.subnav a {
+  font-size: 12.5px; line-height: 1.8; padding: 0 10px; border: 1px solid var(--line); border-radius: 999px;
+  color: var(--muted); background: var(--panel);
+}
+.subnav a:hover { color: var(--accent); border-color: var(--accent); text-decoration: none; }
+
+.per-body { padding: 4px 24px 24px; }
+h3 {
+  display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; color: var(--muted);
+  letter-spacing: .05em; margin: 22px 0 10px;
+}
+h3::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+h3 .n { font-weight: 400; }
+ul.notes { margin: 14px 0 0; padding-left: 20px; }
+ul.notes li { margin: 3px 0; }
+ul.notes li::marker { color: var(--accent); }
+
+.fns { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.fn {
+  position: relative; display: grid; grid-template-columns: minmax(230px, 40%) minmax(0, 1fr); gap: 4px 20px;
+  padding: 10px 16px; border-top: 1px solid var(--line); scroll-margin-top: 80px;
+}
+.fn:first-child { border-top: none; }
+.fn:hover { background: var(--panel-2); }
+.fn:target { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+.fn.flash { animation: flash-row 1.8s ease-out; }
+section.per.flash { animation: flash-sec 1.8s ease-out; }
+@keyframes flash-row { 0%, 35% { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); } }
+@keyframes flash-sec { 0%, 35% { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); } }
+.fn .sig code { background: none; padding: 0; font-weight: 500; word-break: break-word; }
+.fn .fname { color: var(--accent); font-weight: 700; }
+.fn .opt { color: var(--muted); }
+.fn .ret { display: block; color: var(--muted); font-family: "Cascadia Mono", "Consolas", monospace; font-size: 12.5px; }
+.fn .anchor { position: absolute; left: 4px; top: 11px; font-size: 12px; color: var(--muted); opacity: 0; }
+.fn:hover .anchor, .fn .anchor:focus { opacity: 1; text-decoration: none; }
+.tick {
+  display: inline-block; font-size: 11px; line-height: 1.6; color: var(--info); background: var(--info-bg);
+  border-radius: 4px; padding: 0 6px; margin-left: 6px; white-space: nowrap; vertical-align: 1px; cursor: help;
+}
+.legend .tick { margin-left: 0; }
+
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 7px 12px; border-top: 1px solid var(--line); vertical-align: top; }
+tr:first-child th { border-top: none; }
+th { color: var(--muted); font-weight: 600; font-size: 12.5px; background: var(--panel-2); }
+td:first-child { white-space: nowrap; }
+td code { font-size: 13px; }
+
+.code { position: relative; }
+.copy {
+  position: absolute; top: 8px; right: 8px; font-size: 12px; padding: 2px 10px; cursor: pointer;
+  border: 1px solid var(--line-strong); border-radius: 6px; background: var(--panel); color: var(--muted);
+}
+.copy:hover { color: var(--accent); border-color: var(--accent); }
+pre .k { color: var(--syn-kw); font-weight: 600; }
+pre .s { color: var(--syn-str); }
+pre .n { color: var(--syn-num); }
+pre .c { color: var(--syn-com); font-style: italic; }
+pre .f { color: var(--syn-fn); }
+
+.cfg { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 6px; }
+.cfg div { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 5px 10px; background: var(--code-bg); border-radius: 7px; font-size: 13px; }
+.cfg code { background: none; padding: 0; font-size: 13px; }
+.cfg span { color: var(--muted); white-space: nowrap; }
+.cfg-note { font-size: 13px; color: var(--muted); margin: 0 0 6px; }
+.files { list-style: none; margin: 0; padding: 0; }
+.files li { margin: 3px 0; }
+
+#empty { color: var(--muted); padding: 40px 0; text-align: center; }
+.totop {
+  position: fixed; right: 20px; bottom: 20px; z-index: 25; width: 42px; height: 42px; border-radius: 50%;
+  border: 1px solid var(--line-strong); background: var(--panel); color: var(--text); box-shadow: var(--shadow);
+  cursor: pointer; font-size: 18px; opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.totop.show { opacity: 1; pointer-events: auto; }
+.totop:hover { color: var(--accent); border-color: var(--accent); }
+.toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 8px); z-index: 50; padding: 6px 14px; border-radius: 8px;
+  background: var(--text); color: var(--bg); font-size: 13px; opacity: 0; pointer-events: none; transition: opacity .15s, transform .15s;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  aside {
+    position: fixed; z-index: 40; left: 0; top: 0; width: min(300px, 86vw);
+    transform: translateX(-100%); transition: transform .2s ease; box-shadow: 0 0 30px rgba(0, 0, 0, .25);
+  }
+  body.nav-open aside { transform: none; }
+  .backdrop {
+    display: block; position: fixed; inset: 0; z-index: 30; background: rgba(0, 0, 0, .35);
+    opacity: 0; pointer-events: none; transition: opacity .2s;
+  }
+  body.nav-open .backdrop { opacity: 1; pointer-events: auto; }
+  .topbar .menu { display: inline-flex; }
+  .topbar { padding: 8px 16px; gap: 8px; }
+  .searchbox kbd, .count { display: none; }
+  .page { padding: 22px 16px 80px; }
+  h1 { font-size: 24px; }
+  .per-head { padding: 16px 16px 14px; }
+  .per-body { padding: 2px 16px 18px; }
+  .fn { grid-template-columns: 1fr; padding: 10px 14px; }
+  .cards { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+  .totop { right: 14px; bottom: 14px; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside id="side">
+    <a class="brand" href="#top">Ash<span>CC</span> <em>Lua API</em></a>
+    <p class="sub">CC: Tweaked 周辺機器リファレンス<br>MC 1.21.1 / NeoForge · v0.1.0</p>
+    <nav id="nav"></nav>
+  </aside>
+  <div class="backdrop" id="backdrop"></div>
+  <main id="top">
+    <header class="topbar">
+      <button class="iconbtn menu" id="menuBtn" type="button" aria-label="目次を開く">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div class="searchbox">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="search" type="search" placeholder="関数・項目を検索（例: aimAt, heat）" autocomplete="off" aria-label="検索">
+        <kbd>/</kbd>
+      </div>
+      <span id="count" class="count"></span>
+      <span class="spacer"></span>
+      <button class="iconbtn" id="themeBtn" type="button" title="表示テーマを切り替え">自動</button>
+    </header>
+    <div class="page">
+      <div id="intro">
+        <h1>AshCC Lua API</h1>
+        <p class="lead">各周辺機器は <code>peripheral.find("型")</code> / <code>peripheral.wrap("名前")</code> で取得します。リンクハブ経由でも同じ API が使えます。</p>
+        <div class="legend">
+          <span><span class="tick">1 tick</span> サーバーのメインスレッドで実行（呼ぶと 1 tick 待つ）</span>
+          <span><span class="badge req">要 …</span> 必要な MOD</span>
+          <span><kbd class="mono">/</kbd> で検索、<kbd class="mono">Esc</kbd> で解除</span>
+        </div>
+        <div id="overview"></div>
+      </div>
+      <div id="content"></div>
+      <p id="empty" class="hidden">一致する項目がありません。</p>
+    </div>
+  </main>
+</div>
+<button id="toTop" class="totop" type="button" aria-label="ページの先頭へ">↑</button>
+<div id="toast" class="toast" role="status"></div>
+
+<script>
+// 各周辺機器の API。src/main/java/com/ashcc/**/*Peripheral.java と README.md から作成。
+// fn: [シグネチャ, 戻り値, 説明, mainThread?]
+const DATA = [
+{
+  id: "common", group: "はじめに", title: "座標と単位", type: null,
+  intro: [
+    "位置はワールド座標。エンティティは当たり判定の中心、Sable の Sub-Level（機体）は重心",
+    "速度はブロック/秒。力は「質量×ブロック/秒²」（Sable の重力 ≈ 9.8 ブロック/秒²）",
+    "角度はすべて度。機体ID は CC: Sable の <code>sublevel</code> API と同じ UUID 文字列",
+    "Sable・Create・Create Aeronautics（Simulated）は任意依存。無い場合、該当機能は空の結果を返すかブロック自体が登録されない",
+    "サーバー設定は <code>serverconfig/ashcc-server.toml</code>（各周辺機器の「設定」を参照）"
+  ]
+},
+{
+  id: "radar", group: "センサー", title: "レーダー", type: "radar", block: "ashcc:radar",
+  intro: [
+    "エンティティ（プレイヤー・モブ・アイテム・Create のコントラプション等）と Sable の機体を検知",
+    "機体に載せても動く。座標はワールド座標で返し、方位・仰角は機体の向きに合わせて回る",
+    "設置時にプレイヤーが向いていた方向が「前」。<code>local</code> 座標は x=右, y=上, z=前",
+    "<code>azimuth</code> は方位角（前=0、右が正）、<code>elevation</code> は仰角（上が正）",
+    "<code>distance</code> は Sub-Level なら外接箱の最も近い点まで（中心までは <code>centerDistance</code>）"
+  ],
+  fns: [
+    ["getRange()", "number", "探知半径（既定 2048、上限なし）", true],
+    ["setRange(r)", "number", "探知半径を設定。設定後の値を返す", true],
+    ["hasSable()", "boolean", "Sable 連携が有効か"],
+    ["getPosition()", "table", "レーダーのワールド座標 <code>{x,y,z}</code>。機体上なら <code>subLevel</code>（機体ID）付き", true],
+    ["getOrientation()", "table", "<code>right / up / forward</code> のワールド方向ベクトル", true],
+    ["toLocal(x, y, z)", "table", "ワールド座標 → レーダー座標", true],
+    ["toWorld(x, y, z)", "table", "レーダー座標 → ワールド座標", true],
+    ["getSelf()", "table | nil", "載っている機体の情報（Sub-Level の表、自機の <code>iff</code> 付き）。地上なら nil", true],
+    ["scan([range])", "table", "<code>{ entities = {...}, subLevels = {...} }</code>（どちらも距離順）", true],
+    ["scanEntities([range], [filter])", "table[]", "エンティティのみ。filter = <code>{ type = \"minecraft:zombie\" または {...}, player = bool, living = bool, name = \"部分一致\" }</code>", true],
+    ["scanPlayers([range])", "table[]", "プレイヤーのみ", true],
+    ["scanSubLevels([range])", "table[]", "機体のみ（自分が載っている機体は除外）。チャフのエコーも機体と同じ形で混ざる", true],
+    ["scanTerrain([range], [size], [northUp])", "table", "周りの地形の高さ地図。size×size マス（既定 32、上限 terrainMaxSize=128）。行1=前方の端（画面の上）、列1=左端。レーダーの水平の向きに合わせて回る（northUp=true で北が上）。読み込まれていないチャンクは読み込まない（そのマスは nil、kind=\"unloaded\"）", true],
+    ["getContact(id)", "table | nil", "1件を再取得（追跡用）。範囲外・消滅で nil", true],
+    ["intercept(id, speed, [gravity])", "table | nil", "等速で動く目標への見越し射撃解 <code>{x,y,z, time, direction, local, azimuth, elevation, yaw, pitch}</code>。届かなければ nil", true],
+    ["setWatch(enabled, [opts])", "table", "監視モード。opts = <code>{ interval = tick, entities = bool, subLevels = bool, filter = {...} }</code>。設定はブロックに保存され、チャンク再読み込み後も続く", true],
+    ["getWatch()", "table", "現在の監視設定", true]
+  ],
+  tables: [
+    { title: "共通項目", rows: [
+      ["x, y, z", "ワールド座標"], ["vx, vy, vz", "速度（ブロック/秒）"], ["local", "レーダー基準の位置 {x,y,z}"],
+      ["localVelocity", "レーダー基準の速度"], ["azimuth / elevation", "方位角 / 仰角（度）"], ["distance", "距離"] ]},
+    { title: "エンティティの表（kind = \"entity\"）", rows: [
+      ["id", "UUID"], ["type", "エンティティID"], ["name", "表示名"], ["isPlayer / isLiving", "プレイヤーか / 生物か"],
+      ["health / maxHealth", "体力"], ["yaw / pitch", "向き"], ["feet", "足元の座標"], ["vehicle", "乗り物のID"],
+      ["subLevel", "乗っている/立っている機体のID"] ]},
+    { title: "scanTerrain の表", rows: [
+      ["height[行][列]", "地表の一番上のブロックの Y（水・葉を含む、草花は含まない）"], ["floor[行][列]", "水底の Y（水でなければ height と同じ）"],
+      ["color[行][列]", "一番上のブロックの地図色 0xRRGGBB"], ["kind[行][列]", "\"ground\" / \"water\" / \"lava\" / \"ice\" / \"snow\" / \"leaves\" / \"void\" / \"unloaded\""],
+      ["size / range / cell", "1辺のマス数 / 半径 / 1マスの幅（= 2×range/size）"], ["originX / originY / originZ", "地図の中心（レーダー）のワールド座標。高さの差 = height − originY"],
+      ["forward / right", "グリッドの上・右方向（ワールドの水平単位ベクトル）"], ["min / max", "読み込まれたマスの最低・最高の height"], ["northUp", "北が上か"] ]},
+    { title: "Sub-Level の表（kind = \"sublevel\"）", rows: [
+      ["id / name", "機体ID / 名前"], ["mass", "質量"], ["orientation", "姿勢の四元数 {w,x,y,z}"],
+      ["angularVelocity", "角速度"], ["bounds", "外接箱 {minX..maxZ}"], ["size", "大きさ {x,y,z}"],
+      ["posePosition", "pose の位置"], ["centerDistance", "重心までの距離"],
+      ["iff", "<code>{code, callsign}</code>。IFFトランスポンダーを積んだ機体だけ"] ]}
+  ],
+  events: [
+    ["radar_contact", "周辺機器名, 表", "監視中の範囲に入った"],
+    ["radar_lost", "周辺機器名, id, kind", "範囲から出た / 消えた"]
+  ],
+  config: "defaultRange (2048), maxResults (256), minWatchInterval (5 tick), terrainMaxSize (128)",
+  example: `local radar = peripheral.find("radar")
+for _, s in ipairs(radar.scanSubLevels(500)) do
+  print(s.name, math.floor(s.distance), s.azimuth, s.elevation)
+end
+radar.setWatch(true, { interval = 10, subLevels = true })
+while true do
+  local ev, name, a = os.pullEvent()
+  if ev == "radar_contact" then print("IN", a.name) end
+end`,
+  files: ["lua/radar_view.lua — モニターにレーダースコープ（地形の背景つき）", "lua/radar_3d.lua — 高精細モニターに地形の 3D マップと機体（ドラッグで回転・スクロールで拡大）", "lua/radar_alert.lua — 監視イベントと見越し角"]
+},
+{
+  id: "seeker", group: "センサー", title: "シーカー", type: "seeker", block: "ashcc:seeker", req: ["Sable"],
+  intro: [
+    "向いている方向（視線）の円錐内で、視線の中心に最も近い Sable の機体を1つ返す",
+    "設置時にプレイヤーが見ていた方向（上下も可）を向く。真上・真下向きのときは local y=北",
+    "自分が載っている機体は対象外。Sable が無いとフレア以外は見つからない",
+    "燃えているフレアも機体と同じ形で返る。出たてのフレアは <code>flareBias</code>（10°）だけ中心に近いとみなされ、燃え尽きるにつれて 0 になる"
+  ],
+  fns: [
+    ["seek([angle], [distance])", "table | nil", "<code>angle</code>: 視線からの半角（0〜180°、既定 15）。<code>distance</code>: 重心までの距離の上限（既定 512）。戻り値はレーダーの Sub-Level の表＋ <code>offAxis</code>（視線からのずれ、度）。<code>offAxis</code> 最小（同じなら近い方）を選ぶ", true]
+  ],
+  config: "defaultAngle (15°), defaultDistance (512), flareBias (10°)",
+  example: `local seeker = peripheral.find("seeker")
+local t = seeker.seek(30, 200)
+if t then print(t.name, t.offAxis, t.distance) end`,
+  files: ["lua/seeker_test.lua — 引数・結果の検証、track で照準表示"]
+},
+{
+  id: "imu_api", group: "センサー", title: "IMU（コンピューター内蔵）", type: null,
+  intro: [
+    "<b>すべてのコンピューター・タートル・ポケットコンピューターにグローバル <code>imu</code> が入る</b>。ブロックも CC: Sable も不要",
+    "<code>peripheral.find</code> せずに <code>imu.getAngles()</code> のように呼ぶ。地上では水平・静止・1 g 上向き。機体に置けば機体と一緒に動く",
+    "<code>local</code> は x=右, y=上, z=前。角速度は連続する姿勢の差分なので姿勢の変化と必ず一致する。速度・加速度は位置の差分",
+    "「前」はコンピューターの正面、タートルの向き、ポケットなら持っている人の水平の向き（ポケットは傾きを持たない）",
+    "使っている間だけ測る（最後の呼び出しから 5 秒、または setStream 中）。止まっていた後の最初の呼び出しは 1 tick 待ち、速度・角速度は次の tick から",
+    "タートルは 1 ブロックずつ瞬間的に動くので、移動の瞬間に速度・加速度が跳ねる"
+  ],
+  fns: [
+    ["getAll()", "table", "全項目: position, velocity, localVelocity, speed, acceleration, localAcceleration, gForce, yaw, pitch, roll, orientation, axes, angularVelocity, localAngularVelocity, yawRate, pitchRate, rollRate, onShip, subLevel, tick"],
+    ["getAngles()", "table", "<code>{yaw, pitch, roll}</code>: 方位（北=0、東=+90）、機首上げ +、右下がり +"],
+    ["getAngularVelocity()", "table", "ローカル角速度 {x,y,z}（度/秒）＋ yawRate（上から見て時計回り +）, pitchRate, rollRate"],
+    ["getVelocity()", "table", "速度（ワールド、ブロック/秒）"],
+    ["getLocalVelocity()", "table", "速度（ローカル）"],
+    ["getAcceleration()", "table", "加速度（ワールド、ブロック/秒²）"],
+    ["getGForce()", "table", "加速度計の読み（ローカル、g）。静止・水平で y=1、自由落下で 0"],
+    ["getOrientation()", "table", "機体の姿勢の四元数 {w,x,y,z}"],
+    ["getAxes()", "table", "<code>{right, up, forward}</code> のワールド方向"],
+    ["getPosition()", "table", "ワールド座標"],
+    ["isOnShip()", "boolean", "機体上か"],
+    ["getGravity()", "number", "加速度計が使う重力"],
+    ["setStream(ticks)", "number", "ticks ごとにイベント imu(\"computer\", 表) を送る（0 で停止）"],
+    ["getStream()", "number", "イベントの間隔"]
+  ],
+  events: [["imu", "\"computer\", 表", "setStream の間隔ごと。表は getAll() と同じ"]],
+  config: "gravity (9.8)",
+  example: `local a = imu.getAngles()
+print(("heading %.0f pitch %.1f roll %.1f"):format(a.yaw, a.pitch, a.roll))
+imu.setStream(1)
+while true do
+  local _, _, t = os.pullEvent("imu")
+  print(t.speed, t.gForce.y)
+end`,
+  files: ["lua/imu_view.lua — 計器表示（既定でこの API を使う）"]
+},
+{
+  id: "hd_monitor", group: "表示", title: "高精細モニター", type: "hd_monitor", block: "ashcc:hd_monitor",
+  intro: [
+    "1ブロック 128×128 ピクセル、フルカラー（32bit・半透明）。隣に並べた同じ向きのモニターが長方形につながる（既定で最大 16×12 ブロック = 2048×1536 px）",
+    "壁・床・天井のどの向きにも置ける（床と天井は置いたときの向きが画面の上）",
+    "周辺機器タイプは <code>hd_monitor</code> と <code>monitor</code>。CC のモニターと同じ term 関数を持つので <code>term.redirect</code> / <code>window.create</code> にそのまま渡せる",
+    "ピクセルは 0 始まり・左上が原点。線と円の座標はピクセルの中心、<code>fillPolygon</code> の点はピクセルの角",
+    "色: 数値 <code>0xRRGGBB</code>（不透明）、<code>0xAARRGGBB</code>（0xFFFFFF より大きいとき）、文字列 <code>\"#RGB\" \"#RRGGBB\" \"#RRGGBBAA\" \"transparent\"</code>、表 <code>{r, g, b, [a]}</code>（0〜255）。CC の <code>colors.red</code> などはピクセル関数には使えない（term 関数用）",
+    "文字は Unifont（16px、日本語を含むほぼ全 Unicode）。Lua の文字列を UTF-8 として描く",
+    "描画関数は 1 tick 待たずにすぐ返る。<code>setAutoPresent(false)</code> にすると <code>present()</code> まで画面に出ないので、ちらつきのないアニメーションになる",
+    "描画命令だけを送り、サーバーとクライアントが同じ計算で描くので通信量が小さい。近くに来たプレイヤーには画面全体を送る",
+    "機体（Sable）に載せても表示・タッチが動く。画面の中身はブロックに保存されない（CC のモニターと同じ。読み込み直したら描き直す）"
+  ],
+  fns: [
+    ["getResolution()", "number, number", "画面の幅・高さ（ピクセル）"],
+    ["getBlockSize()", "number, number", "モニターの幅・高さ（ブロック）"],
+    ["getPixelsPerBlock()", "number", "128"],
+    ["getInfo()", "table", "<code>{width, height, blocksWide, blocksHigh, columns, rows, textScale, hologram, glow, autoPresent}</code>", true],
+    ["fill(color)", "", "画面全体を塗る（クリップ内、置き換え）"],
+    ["setPixel(x, y, color)", "", "1ピクセル"],
+    ["getPixel(x, y)", "number", "表示中の色（不透明なら 0xRRGGBB、半透明なら 0xAARRGGBB）"],
+    ["fillRect(x, y, w, h, color)", "", "塗りつぶし長方形"],
+    ["drawRect(x, y, w, h, color, [thickness])", "", "長方形の枠（内側に太る）"],
+    ["drawLine(x1, y1, x2, y2, color, [thickness])", "", "線（小数座標・太さ可、アンチエイリアス）"],
+    ["drawCircle(cx, cy, r, color, [thickness])", "", "円"],
+    ["fillCircle(cx, cy, r, color)", "", "塗りつぶし円"],
+    ["drawEllipse(cx, cy, rx, ry, color, [thickness])", "", "楕円"],
+    ["fillEllipse(cx, cy, rx, ry, color)", "", "塗りつぶし楕円"],
+    ["drawPolygon(points, color, [thickness])", "", "閉じた折れ線。points = <code>{x1, y1, x2, y2, ...}</code> または <code>{{x, y}, ...}</code>（最大 4096 点）"],
+    ["fillPolygon(points, color)", "", "塗りつぶし多角形（非ゼロ規則）"],
+    ["drawText(x, y, text, color, [opts])", "number, number", "文字列（改行可）。opts = <code>{ scale = 1〜64, bg = 色, align = \"left\" | \"center\" | \"right\" }</code>。描いた幅・高さを返す"],
+    ["measureText(text, [scale])", "number, number", "文字列の幅・高さ（ピクセル）"],
+    ["drawImage(x, y, w, h, data, [opts])", "", "画像。data = 色の表（行ごと）または文字列。opts = <code>{ format = \"rgba\" | \"rgb\" | \"argb\" | \"index\", palette = {色, ...}, scaleWidth, scaleHeight }</code>。\"index\" は 1 バイト 1 ピクセル（0 始まり、パレット外は透明）"],
+    ["copyRect(x, y, w, h, toX, toY)", "", "ピクセルを移す（スクロールなど）"],
+    ["rgba(r, g, b, [a])", "string", "色の文字列 <code>\"#rrggbbaa\"</code> を作る（0〜255）"],
+    ["setClip(x, y, w, h)", "", "この長方形の中だけに描く"],
+    ["resetClip()", "", "クリップを解除"],
+    ["setBlend(bool) / getBlend()", "", "半透明の色を下と混ぜる（既定 true）。false で置き換え（アルファもそのまま書く）"],
+    ["setAntialias(bool) / getAntialias()", "", "線・円・多角形の縁を滑らかにする（既定 true）"],
+    ["setAutoPresent(bool) / getAutoPresent()", "", "false: 描画を溜めて <code>present()</code> でまとめて出す。true に戻すと溜まった分を出す"],
+    ["present()", "", "溜めた描画を画面に出す"],
+    ["setHologram(bool) / isHologram()", "", "外枠を消し、透明なピクセルから向こうが見えるホログラムにする", true],
+    ["setGlow(bool) / isGlowing()", "", "最大の明るさで光る（既定 true）。false で周りの明るさに合わせる", true],
+    ["write / blit / clear / clearLine / scroll", "", "CC の term と同じ（文字は Unifont、CC の文字コード 0〜255。128〜159 のブロック文字も描く）"],
+    ["setCursorPos / getCursorPos / setCursorBlink / getCursorBlink / getSize", "", "CC の term と同じ。getSize は文字数"],
+    ["setTextColor / setBackgroundColor / get… / isColor", "", "CC の term と同じ（<code>colors.*</code>）"],
+    ["setPaletteColor / getPaletteColor", "", "CC の term と同じ。ただし変更はこれから描く文字にだけ効く（描いたピクセルの色は変わらない）"],
+    ["setTextScale(scale) / getTextScale()", "", "0.5〜5（0.5 刻み）。0.5 で 1 文字 8×16 px（1ブロック 16×8 文字）、1 で 16×32 px"]
+  ],
+  events: [
+    ["hd_touch", "名前, x, y, ボタン, プレイヤー名", "右クリックで押した（ボタン 1）／スニーク＋右クリック（ボタン 2）。x, y はピクセル"],
+    ["hd_drag", "名前, x, y, ボタン, プレイヤー名", "押したまま視線を動かした（毎 tick まで）"],
+    ["hd_release", "名前, x, y, ボタン, プレイヤー名", "離した（最後の位置）"],
+    ["hd_scroll", "名前, x, y, 向き, プレイヤー名", "押したままマウスホイール（上 -1、下 1）。そのときはホットバーが動かない"],
+    ["monitor_touch", "名前, 列, 行", "CC と同じ（押したときの文字セル）"],
+    ["monitor_resize", "名前", "文字の大きさを変えた"]
+  ],
+  config: "maxWidth (16), maxHeight (12), syncRange (96), maxFrameBytes (16 MiB)",
+  example: `local mon = peripheral.find("hd_monitor")
+local w, h = mon.getResolution()
+mon.setAutoPresent(false)
+mon.fill(0x101820)
+mon.fillCircle(w / 2, h / 2, 60, "#40c0ff80")
+mon.drawLine(0, 0, w, h, 0xff4040, 3)
+mon.drawText(w / 2, 10, "こんにちは HD", 0xffffff, { scale = 2, align = "center" })
+mon.present()
+while true do
+  local ev, side, x, y, button, player = os.pullEvent("hd_touch")
+  mon.fillCircle(x, y, 4, 0xffff00)
+end`,
+  files: ["lua/hd_demo.lua — radar（レーダーのスコープ）／ paint（タッチでお絵描き）／ term（シェルをモニターに出す）"]
+},
+{
+  id: "transponder", group: "センサー", title: "IFFトランスポンダー", type: "transponder", block: "ashcc:transponder", req: ["Sable"],
+  intro: [
+    "機体に積むと、レーダー・シーカーがその機体を返すときに <code>iff = { code, callsign }</code> が付く",
+    "敵味方の判定はプログラム側で行う。コードは誰でも同じものを設定できる（なりすまし可能）",
+    "名前を付けた名札を使うとコードを設定。素手で使うと状態を表示",
+    "レッドストーン信号を入れている間は送信しない（電波封止）。1機に複数あるときはブロック座標が最小のもの"
+  ],
+  fns: [
+    ["getCode()", "string", "IFFコード", true],
+    ["setCode(code)", "string", "最大32文字（前後の空白は除く）。<code>\"\"</code> で送信しない", true],
+    ["getCallsign()", "string", "コールサイン", true],
+    ["setCallsign(name)", "string", "最大32文字", true],
+    ["isEnabled()", "boolean", "送信の入/切", true],
+    ["setEnabled(bool)", "boolean", "送信の入/切を設定", true],
+    ["isTransmitting()", "boolean", "いまレーダーに見えているか（有効・コードあり・信号なし・機体上）", true],
+    ["isSilenced()", "boolean", "レッドストーン信号で止まっているか", true],
+    ["getSubLevel()", "string | nil", "識別している機体のID", true]
+  ],
+  example: `local x = peripheral.find("transponder")
+x.setCode("BLUE")
+x.setCallsign("Alpha-1")
+-- 別のコンピューターで
+for _, s in ipairs(radar.scanSubLevels()) do
+  local mine = radar.getSelf()
+  local friend = s.iff and mine and mine.iff and s.iff.code == mine.iff.code
+  print(s.iff and s.iff.callsign or s.id:sub(1, 8), friend and "FRIEND" or "?")
+end`,
+  files: ["lua/aa_laser.lua — 自機と同じコードの機体は撃たない"]
+},
+{
+  id: "decoy_launcher", group: "武装", title: "フレア／チャフ発射機", type: "decoy_launcher", block: "ashcc:decoy_launcher",
+  intro: [
+    "囮を撃ち出す。<b>チャフはレーダーに機体として映り、フレアはシーカーに機体として映る</b>（もう一方には映らない）",
+    "どちらもエンティティの探知・レーザーには掛からない。チャフのエコーは撃った機体の size・mass・orientation を写す（iff は無い）",
+    "設置時にプレイヤーが見ていた方向（上下も可）に撃つ。発射速度に機体の速度が足される",
+    "弾はアイテム <code>ashcc:flare</code> / <code>ashcc:chaff</code>。発射機に使うかホッパーで入れる（取り出し不可。プレイヤーが壊すと中身を落とす）",
+    "見破り方の例: 速度がすぐ落ちる／レーダーで <code>getContact(フレアのID)</code> が nil／チャフはシーカーに映らない"
+  ],
+  fns: [
+    ["fire(kind, [count])", "number[, string]", "<code>\"flare\"</code> / <code>\"chaff\"</code> を同時に count 発（既定 1、上限 maxSalvo）。撃った数を返す。撃てなければ <code>0, \"cooldown\"</code> / <code>0, \"empty\"</code>", true],
+    ["getAmmo()", "table", "<code>{ flare = n, chaff = n }</code>", true],
+    ["getCapacity()", "number", "1種類あたりの装填数の上限", true],
+    ["getMaxSalvo()", "number", "1回に撃てる数", true],
+    ["getCooldown()", "number", "次に撃てるまでの秒数", true],
+    ["isReady()", "boolean", "撃てるか", true],
+    ["getFacing()", "string", "撃ち出す向き", true]
+  ],
+  config: "capacity (64), maxSalvo (8), requireAmmo (true), cooldownSeconds (0.5), spread (15°), flareSpeed (25), flareSeconds (6), flareGravity (4), flareDrag (0.96), chaffSpeed (15), chaffSeconds (8), chaffGravity (0.5), chaffDrag (0.85)",
+  example: `local l = peripheral.find("decoy_launcher")
+print(textutils.serialize(l.getAmmo()))
+local n, why = l.fire("chaff", 3)
+if n == 0 then print("not fired:", why) end`,
+  files: ["lua/countermeasures.lua — 近づく非友軍機に自動でチャフとフレアを撒く"]
+},
+{
+  id: "laser", group: "武装", title: "レーザー", type: "laser", block: "ashcc:laser",
+  intro: [
+    "ブロックに向きは無く全方向を狙える。<code>yaw</code>（北=0、東が正、-180〜180）と <code>pitch</code>（上が正、-90〜90）",
+    "機体の上では「北・上」は機体自身の北・上。<code>aimAt</code> はワールド座標なので普段はこちらを使う",
+    "照準は最短の弧で <code>aimSpeed</code>（180°/秒）で回る",
+    "既定はレッドストーン制御。<code>fire</code> / <code>stop</code> を呼ぶとコンピューター制御に切り替わる",
+    "ブロックは毎 tick <code>blockPower</code>（0.5）ずつ硬さを削って焼き切る。エンティティには <code>entityDamage</code>（4）と着火",
+    "連続 <code>maxFireSeconds</code>（10 秒）で過熱し、冷え切る（<code>cooldownSeconds</code> 5 秒）まで撃てない",
+    "Sable: 他の機体を焼き切り <code>impactForce</code> で押す。撃っている間は自機に反動。自機には当たっても壊さない（既定）"
+  ],
+  fns: [
+    ["fire([seconds])", "true | false, \"overheated\"", "撃つ（省略で stop まで）", true],
+    ["stop()", "—", "止める", true],
+    ["isFiring()", "boolean", "いま光線が出ているか"],
+    ["setAim(yaw, pitch)", "yaw, pitch", "照準（度）。yaw は -180〜180 に折り返し、pitch は -90〜90 に制限した値を返す", true],
+    ["aimAt(x, y, z)", "ok, yaw, pitch", "ワールド座標を狙う。ok=false はレーザーのブロック自身の中を指定したときだけ", true],
+    ["getAim()", "yaw, pitch", "現在の照準"],
+    ["getTargetAim()", "yaw, pitch", "目標の照準"],
+    ["isAimed()", "boolean", "目標の照準に到達したか"],
+    ["getDirection()", "table", "光線のワールド方向 <code>{x,y,z, origin={x,y,z}}</code>（origin は光線の始点）", true],
+    ["trace()", "table", "撃たずに、いまの照準で光線がどこまで届くか（距離計）。当たりの表を返す", true],
+    ["getHit()", "table | nil", "直前の tick に当たったもの（撃っていなければ nil）"],
+    ["getHeat()", "number", "熱 0..1"],
+    ["isOverheated()", "boolean", "過熱中か"],
+    ["getRange()", "number", "光線の長さ（設定値）"],
+    ["getSubLevel()", "string | nil", "載っている機体のID（地上なら nil）"],
+    ["setRedstoneControl(b)", "—", "レッドストーン制御の切り替え", true],
+    ["isRedstoneControl()", "boolean", "レッドストーン制御中か"],
+    ["getRedstoneInput()", "number", "レッドストーン入力 0..15"]
+  ],
+  tables: [
+    { title: "当たりの表（trace / getHit）", rows: [
+      ["type", "\"block\" / \"entity\" / \"none\""], ["x, y, z", "光線の終点（ワールド座標）"], ["distance", "距離"],
+      ["block", "ブロックID"], ["subLevel", "当たった機体のID"], ["entity", "{id, type, name}"],
+      ["progress", "焼き切りの進み 0..1（getHit のみ）"] ]}
+  ],
+  events: [
+    ["laser_break", "名前, ブロックID, x, y, z, 機体ID(nil可)", "ブロックを壊した"],
+    ["laser_overheat", "名前", "過熱して止まった"],
+    ["laser_ready", "名前", "冷えて撃てるようになった"]
+  ],
+  config: "range (256), blockPower (0.5), breakBlocks (true), dropBlocks (false), damageOwnSubLevel (false), entityDamage (4), igniteSeconds (3), impactForce (100), recoil (true), aimSpeed (180°/秒), maxFireSeconds (10), cooldownSeconds (5)",
+  example: `local laser = peripheral.find("laser")
+laser.aimAt(100, 70, -20)
+laser.fire(2)          -- 2 秒撃つ
+print(laser.getHit())`,
+  files: ["lua/laser_turret.lua — 試験・自動砲塔（track）・手動（manual）", "lua/aa_laser.lua — レーダー＋全レーザーの対空迎撃"]
+},
+{
+  id: "thruster", group: "推進・操縦", title: "スラスター", type: "thruster", block: "ashcc:thruster", req: ["Sable（力を出すのに必要）"],
+  intro: [
+    "Sable の機体に取り付けると、その位置から機体を押す（重心から外れていれば回転力も生じる）。地上では力は出ない",
+    "ノズルを設置したプレイヤー側に向けて置かれる（スニークで逆向き）。押す向きはノズルの逆",
+    "既定はレッドストーン制御（信号強度/15 が出力）。<code>setThrust</code> でコンピューター制御に切り替わる",
+    "質量 m の機体を浮かせるには約 9.8·m の力。推力方向 = normalize(thrust + tan(x·max)·axisX + tan(y·max)·axisY)",
+    "ジンバル軸: ノズルが上下向きなら x=+X, y=+Z（ブロック座標）。横向きなら x=押す方向の右, y=上"
+  ],
+  fns: [
+    ["setThrust(t)", "—", "出力目標 0..1（コンピューター制御に切り替え）", true],
+    ["getThrust()", "number", "出力目標", true],
+    ["getCurrentThrust()", "number", "実際の出力（throttleRate で目標へ追従）"],
+    ["getForce()", "number", "現在の力"],
+    ["getMaxThrust()", "number", "最大推力（設定 maxThrust）"],
+    ["setVector(x, y)", "—", "ジンバル -1..1（各軸 ±maxGimbal）", true],
+    ["getVector()", "{x, y}", "現在のジンバル"],
+    ["getTargetVector()", "{x, y}", "目標のジンバル"],
+    ["getMaxGimbal()", "number", "最大ジンバル角（度）"],
+    ["getAxes()", "table", "<code>thrust</code>（押す方向）と <code>x</code>/<code>y</code>（ジンバル正方向）のワールド方向。<code>local</code> は機体座標、<code>nozzle</code> は向きの名前", true],
+    ["getThrustVector()", "table", "現在の力ベクトル（ワールド）、<code>local</code> は機体座標", true],
+    ["stop()", "—", "出力 0・ジンバル中央", true],
+    ["setRedstoneControl(b)", "—", "レッドストーン制御の切り替え", true],
+    ["isRedstoneControl()", "boolean", "レッドストーン制御中か"],
+    ["getRedstoneInput()", "number", "レッドストーン入力 0..15"],
+    ["getSubLevel()", "string | nil", "取り付けている機体のID（地上なら nil）"]
+  ],
+  config: "maxThrust (2000), maxGimbal (30°), throttleRate (1 = 即時), gimbalRate (1 = 即時)",
+  example: `local t = peripheral.find("thruster")
+t.setThrust(0.6)
+t.setVector(0.2, 0)   -- x 方向に 6° 傾ける`,
+  files: ["lua/thruster_hover.lua — 全スラスターで高度維持（CC: Sable の sublevel API を使用）"]
+},
+{
+  id: "antigravity", group: "推進・操縦", title: "反重力コア", type: "antigravity", block: "ashcc:antigravity_core", req: ["Sable（動かすのに必要）"],
+  intro: [
+    "Sable の機体に載せると<b>機体の重力を打ち消し</b>、Lua の指令どおりに動かす（速度・行き先・向き）。地上では何もしない",
+    "力は質量と慣性から計算するので、機体の重さに関係なく同じように動く。加速度・角加速度は上限（setLimits）まで",
+    "既定: 無重力で静止を保つ（速度 0・回転 0）。<code>release()</code> で制御をやめると、重力だけ消えた状態で漂う",
+    "機体の向きは組み立てたときが基準: 前 = 北、右 = 東、上 = 上。角度と回転の符号は imu と同じ（yaw 北0/東+90、pitch 機首上げ+、roll 右下がり+）",
+    "1機に複数あっても効くのは1つだけ（他は待機。<code>isActive()</code> で分かる）。レッドストーン信号を入れると止まる（機体は落ちる）"
+  ],
+  fns: [
+    ["setVelocity(x, y, z)", "—", "ワールドの速度（ブロック/秒）で飛ぶ", true],
+    ["setLocalVelocity(right, up, forward)", "—", "機体基準の速度で飛ぶ（機体と一緒に回る）", true],
+    ["moveTo(x, y, z)", "—", "このブロックの中心をワールドの点へ運んで止まる", true],
+    ["move(dx, dy, dz)", "—", "今の位置からの相対で moveTo", true],
+    ["releaseLinear()", "—", "位置の制御をやめる（漂う）", true],
+    ["setAngularVelocity(yawRate, pitchRate, rollRate)", "—", "度/秒で回す（機体基準の軸）", true],
+    ["setRotation(yaw, [pitch], [roll])", "—", "その向きに回して保つ（度）", true],
+    ["level()", "—", "今の機首方位のまま水平に戻す", true],
+    ["releaseAngular()", "—", "回転の制御をやめる", true],
+    ["stop()", "—", "速度 0・回転 0 に止める（既定の状態）", true],
+    ["hold()", "—", "今の位置と向きを保つ", true],
+    ["release()", "—", "位置・回転とも制御をやめる（重力の設定は残る）", true],
+    ["isAtTarget()", "boolean", "moveTo / setRotation の目標に着いたか（目標の無いモードは着いた扱い）"],
+    ["setGravity(scale)", "—", "機体が感じる重力 0（既定）..1（普通）。負なら上に落ちる", true],
+    ["getGravity()", "number", "重力の倍率"],
+    ["setEnabled(bool)", "—", "入/切（切ると普通に落ちる）", true],
+    ["isEnabled()", "boolean", "入/切"],
+    ["isActive()", "boolean", "いまこのコアが機体を動かしているか"],
+    ["setLimits{speed, acceleration, angularSpeed, angularAcceleration}", "—", "上限（ブロック/秒、ブロック/秒²、度/秒、度/秒²）。書かなかった項目はそのまま。サーバーの上限で切る", true],
+    ["getLimits()", "table", "上限と、サーバーの上限 <code>max</code>"],
+    ["getPosition()", "{x, y, z}", "このブロックの中心のワールド座標", true],
+    ["getVelocity()", "{x, y, z, local}", "ワールドの速度、<code>local</code> は {right, up, forward}", true],
+    ["getRotation()", "{yaw, pitch, roll}", "機体の向き（度）", true],
+    ["getAngularVelocity()", "{yawRate, pitchRate, rollRate}", "度/秒", true],
+    ["getMass()", "number", "機体の質量", true],
+    ["getSubLevel()", "string | nil", "載っている機体のID", true],
+    ["getState()", "table", "設定・目標・機体の状態をまとめて", true]
+  ],
+  events: [["antigravity_arrived", "\"position\" | \"rotation\", x|yaw, y|pitch, z|roll", "moveTo / setRotation の目標に着いたとき（1回）"]],
+  config: "maxSpeed (20), maxAcceleration (20), maxAngularSpeed (45°/秒), maxAngularAcceleration (90°/秒²), speedCap (100), accelerationCap (100), angularSpeedCap (360), angularAccelerationCap (720)",
+  example: `local ag = peripheral.find("antigravity")
+ag.move(0, 10, 0)              -- 10 ブロック上昇して止まる
+os.pullEvent("antigravity_arrived")
+ag.setRotation(90)             -- 東を向く
+ag.setLocalVelocity(0, 0, 8)   -- 前へ 8 ブロック/秒`,
+  files: ["lua/antigrav_pilot.lua — キーボード操縦（fly）・goto・状態表示", "lua/antigrav_test.lua — 自動試験（40 項目、結果は antigrav_test.log。--no-fall で落下する項目を省く）"]
+},
+{
+  id: "control_panel", group: "推進・操縦", title: "コントロールパネル", type: "control_panel", block: "ashcc:control_panel", req: ["Drive By Wire（ケーブル出力、任意）"],
+  intro: [
+    "1ブロックの板に、ボタン・トグル・ノブ・スライダー・サイドスティック・スロットル・画面（MFD）・HUD を 4×4 / 8×8 のマスに自由に並べる。傾き 0〜60°。床・壁・天井、Sable の機体上でも使える",
+    "<b>スニーク＋素手で右クリック</b>でマスとパネルの設定。<b>右クリック</b>で操作。スティックとスロットルは<b>同時に</b>つかめる（HOTAS）: スティック W/S/A/D・Space 引金・矢印 ハット・X、スロットル R/F・C/V。スニークで離す",
+    "出力: Drive By Wire のケーブル（<code>panel_1</code>〜<code>panel_64</code>）、レッドストーン（最大値）、CC",
+    "画面と HUD はパネルの 256×256 キャンバスの自分の範囲を映す。<b>HD モニターの描画関数がすべて使える</b>（追加型 <code>hd_monitor</code>）",
+    "スティックは 10 ch（前後左右・引金・ハット4方向・ボタン2）、スロットルは 3 ch（値・親指1・2）"
+  ],
+  fns: [
+    ["getChannel(n)", "number", "チャンネル n（1〜64）の値 0〜15", true],
+    ["getChannels()", "table", "全チャンネル {[1]=値, …, [64]=値}", true],
+    ["getControls()", "table", "部品の一覧: <code>type, col, row, width, height, channel, channels, color, on, value, x, y, buttons, held</code>、画面・HUD は <code>px, py, pw, ph</code>（キャンバス上の範囲）", true],
+    ["getLayout()", "grid, tilt", "マス（4 / 8）と傾き（度）", true],
+    ["fillRect / drawLine / drawText / drawImage …", "—", "HD モニターと同じ描画関数（キャンバス 256×256）"]
+  ],
+  events: [["control_panel", "channel, value", "チャンネルの値が変わったとき"]],
+  config: "controlPanel: stickRate (4/秒), sliderRate (0.5/秒)",
+  example: `local p = peripheral.find("control_panel")
+for _, c in ipairs(p.getControls()) do
+  if c.type == "hud" then
+    p.fillRect(c.px, c.py, c.pw, c.ph, "transparent")
+    p.drawLine(c.px + 10, c.py + c.ph / 2, c.px + c.pw - 10, c.py + c.ph / 2, 0x40FF70, 2)
+  end
+end
+while true do
+  local _, _, ch, v = os.pullEvent("control_panel")
+  print("ch" .. ch .. " = " .. v)
+end`,
+  files: ["src/main/java/com/ashcc/devtest/PanelShot.java — F-16 風コックピットの見本（MFD・HUD・HOTAS）"]
+},
+{
+  id: "flap_bearing", group: "推進・操縦", title: "フラップベアリング", type: "flap_bearing", block: "ashcc:flap_bearing", req: ["Create"],
+  intro: [
+    "CC で角度を指令するサーボ式ベアリング。前面のブロックをコントラプションとして回し、指定角度で止める。回転動力は不要",
+    "組み立ては素手で右クリックか <code>assemble()</code>。分解は 0° に戻ってから行う",
+    "Sable の機体に載せ、帆を付けて舵面（フラップ・エルロン・ラダー）として使える"
+  ],
+  fns: [
+    ["setAngle(deg)", "number", "目標角度（±maxAngle に制限、範囲外は -180..180 に折り返し）。実際の目標を返す", true],
+    ["getAngle()", "number", "現在角"],
+    ["getTargetAngle()", "number", "目標角"],
+    ["isAtTarget()", "boolean", "到達したか"],
+    ["setSpeed(degPerSec)", "number", "回転速度（既定 90°/秒、上限 maxSpeed）", true],
+    ["getSpeed()", "number", "回転速度"],
+    ["assemble()", "true | false, 理由", "組み立て", true],
+    ["disassemble()", "boolean", "分解。false は「0° に戻ってから分解する」", true],
+    ["isAssembled()", "boolean", "組み立て済みか"],
+    ["getAxis()", "table", "回転軸（ベアリングの向き）のワールド方向。機体と一緒に回る", true],
+    ["getMaxAngle()", "number", "設定 maxAngle"],
+    ["getMaxSpeed()", "number", "設定 maxSpeed"]
+  ],
+  config: "defaultSpeed (90°/秒), maxSpeed (720°/秒), maxAngle (180°)",
+  example: `local flap = peripheral.find("flap_bearing")
+flap.assemble()
+flap.setSpeed(180)
+flap.setAngle(15)   -- 15° 下げる`,
+  files: ["lua/flap_test.lua — 自動試験・manual・wave"]
+},
+{
+  id: "quad_flap_bearing", group: "推進・操縦", title: "4方向フラップベアリング", type: "quad_flap_bearing", block: "ashcc:quad_flap_bearing", req: ["Create"],
+  intro: [
+    "1ブロックで4枚のフラップを別々に動かす（ミサイルの十字尾翼など）。FACING が胴体の軸、周りの4面に付けたブロックがフラップ",
+    "フラップの名前は付いている面の方角（ブロック座標）。上向きに置けば <code>north, south, west, east</code>",
+    "向かい合う2枚に同じ角度 → 同じ向きに傾く（ピッチ・ヨー）、逆の角度 → ロール",
+    "フラップ同士や胴体を接着剤でつながないこと"
+  ],
+  fns: [
+    ["getSides()", "string[]", "4つの面の名前"],
+    ["assemble([side])", "true | false, 理由 / 数, {面=理由}", "1枚、または省略で全部を組み立て", true],
+    ["disassemble([side])", "boolean", "0° に戻ってから分解。すぐ終わったら true", true],
+    ["isAssembled([side])", "boolean | {面=bool}", "組み立て済みか"],
+    ["setAngle(side, deg)", "number", "目標角度。side に \"all\" で4枚とも", true],
+    ["setAngles({north=10, ...})", "table", "まとめて指定（同じ tick に反映）", true],
+    ["getAngle([side])", "number | {面=角度}", "現在角"],
+    ["getTargetAngle([side])", "number | {面=角度}", "目標角"],
+    ["isAtTarget([side])", "boolean", "省略で全部が到達したか"],
+    ["setSpeed(degPerSec)", "number", "4枚共通の速度（既定 90°/秒）", true],
+    ["getSpeed()", "number", "速度"],
+    ["getFacing()", "table", "胴体の軸のワールド方向", true],
+    ["getAxis(side)", "table", "そのフラップの回転軸のワールド方向", true],
+    ["getMaxAngle()", "number", "設定 maxAngle"],
+    ["getMaxSpeed()", "number", "設定 maxSpeed"]
+  ],
+  config: "flapBearing と共通: defaultSpeed (90°/秒), maxSpeed (720°/秒), maxAngle (180°)",
+  example: `local fins = peripheral.find("quad_flap_bearing")
+fins.assemble()
+fins.setAngles({ north = 10, south = 10 })  -- ピッチ
+fins.setAngles({ west = 5, east = -5 })     -- ロール`,
+  files: ["lua/quad_flap_test.lua — 自動試験・manual・wave"]
+},
+{
+  id: "servo_bearing", group: "推進・操縦", title: "サーボベアリング", type: "servo_bearing", block: "ashcc:servo_bearing", req: ["Create Aeronautics（Simulated）"],
+  intro: [
+    "スイブルベアリングを CC 制御のサーボにしたもの。前面のブロックが別の Sable 機体（ターンテーブル）になり回転ジョイントでつながる",
+    "コントラプションではないので、組み立て後もターンテーブル上にブロックを置ける",
+    "分解は 0° に戻ってから（5 秒で戻れなければそのまま）。ロック解除中は即分解",
+    "機体に載せても動く"
+  ],
+  fns: [
+    ["setAngle(deg)", "number", "目標角度（-180..180 に折り返し、近い向きに回る）。実際の目標を返す", true],
+    ["getAngle()", "number", "ターンテーブルの実測角度（組み立て時が 0、右ねじが正）"],
+    ["getTargetAngle()", "number", "目標角"],
+    ["isAtTarget()", "boolean", "指令が終わって実測が 1° 以内か"],
+    ["setSpeed(degPerSec)", "number", "回転速度（既定 90°/秒）", true],
+    ["getSpeed()", "number", "回転速度"],
+    ["getMaxSpeed()", "number", "設定 maxSpeed"],
+    ["setLocked(bool)", "—", "false で自由回転（摩擦あり）。true に戻すと今の角度で止め、目標へ回り直す", true],
+    ["isLocked()", "boolean", "ロック中か"],
+    ["assemble()", "true | false, 理由", "組み立て", true],
+    ["disassemble()", "boolean", "分解。false は「0° に戻ってから分解する」", true],
+    ["isAssembled()", "boolean", "組み立て済みか"],
+    ["getSubLevel()", "string | nil", "ターンテーブルの機体 UUID。未組み立てなら nil"],
+    ["getAxis()", "table", "回転軸のワールド方向。機体と一緒に回る", true]
+  ],
+  config: "defaultSpeed (90°/秒), maxSpeed (720°/秒), stiffness (1600), damping (40), friction (0.3)",
+  example: `local servo = peripheral.find("servo_bearing")
+servo.assemble()
+servo.setSpeed(45)
+servo.setAngle(90)
+while not servo.isAtTarget() do sleep(0.1) end`
+},
+{
+  id: "link_hub", group: "接続", title: "リンクハブ", type: "link_hub", block: "ashcc:link_hub / ashcc:link_card",
+  intro: [
+    "ケーブル無しで離れた周辺機器をコンピューターに繋ぐ。有線モデムと同じ <code>peripheral_hub</code> 方式",
+    "<code>peripheral.getNames()</code> / <code>wrap</code> / <code>find</code> がそのまま使え、<code>peripheral</code> / <code>peripheral_detach</code> イベントやレーダーのイベントも届く",
+    "リンクカードで周辺機器を右クリック → カードに追加。カードでハブを右クリック → まとめて登録",
+    "名前は有線モデムと同じ <code>型_番号</code>（radar_0, thruster_1 …）",
+    "チャンク未読み込みの間は切断扱い。10 tick ごとに再接続を確認。機体上のブロックはプロット座標で登録されるので機体が動いても繋がったまま"
+  ],
+  fns: [
+    ["getLinks()", "table[]", "<code>{ {name, type, dimension, x, y, z, side, connected}, ... }</code>。ヘッドトラッカーは <code>{name, type, player, uuid, connected}</code>", true],
+    ["removeLink(name)", "boolean", "登録解除", true],
+    ["renameLink(name, newName)", "boolean", "名前を変える（例 main_engine）", true]
+  ],
+  events: [
+    ["peripheral", "名前", "リンク先が接続された"],
+    ["peripheral_detach", "名前", "リンク先が切断された（チャンク未読み込みなど）"]
+  ],
+  config: "range (0 = 無制限), interdimensional (true), maxLinks (64)"
+},
+{
+  id: "head_tracker", group: "接続", title: "ヘッドトラッカー", type: "head_tracker", block: "ashcc:head_tracker（アイテム）",
+  intro: [
+    "プレイヤーの頭（カメラ）の向きをリンクハブ経由で読む。持ち歩く必要はない",
+    "ヘッドトラッカーを空中で右クリック → 自分に紐付け（スニークで解除）。リンクハブを右クリック → <code>head_tracker_0</code> として登録（スニークで登録解除）",
+    "プレイヤーがオンラインでリンク範囲内の間だけ接続。ログアウトで <code>peripheral_detach</code>、戻ると再接続",
+    "角度はレーザーと同じ: yaw は北=0・東が正（-180..180）、pitch は上が正",
+    "<code>local</code> はハブの座標系（ハブが機体上なら機体の北・上）。同じ機体のレーザーの <code>setAim</code> にそのまま渡せる"
+  ],
+  fns: [
+    ["getPlayer()", "string, string", "紐付いたプレイヤー名, UUID"],
+    ["isOnline()", "boolean", "オンラインか", true],
+    ["getYaw() / getPitch()", "number", "ワールド基準の yaw / pitch", true],
+    ["getAngles()", "number, number", "ワールド基準の yaw, pitch", true],
+    ["getLocalAngles()", "number, number", "ハブ（機体）基準の yaw, pitch", true],
+    ["getLook()", "table", "<code>{yaw, pitch, localYaw, localPitch, direction, localDirection, eye, dimension, name, [subLevel]}</code>。direction は単位ベクトル、eye は目の位置", true],
+    ["getLookTarget([range])", "table", "視線の先（既定 128、最大 1024 ブロック）。<code>laser.trace()</code> と同じ形 <code>{type = \"block\"|\"entity\"|\"none\", x, y, z, distance, [block], [entity], [subLevel]}</code>", true]
+  ],
+  example: `local tracker = peripheral.find("head_tracker")
+local laser = peripheral.find("laser")
+while true do
+  laser.setAim(tracker.getLocalAngles())
+  sleep(0.05)
+end`
+},
+{
+  id: "sticker", group: "接続", title: "Create スティッカー", type: "Create_Sticker", block: "create:sticker", req: ["Create"],
+  external: true,
+  intro: [
+    "AshCC の追加ブロックではない。Create 6 のスティッカーがそのまま CC 周辺機器になる",
+    "Sable があると、伸ばしたスティッカーが前面の別機体（または地面）と固定ジョイントで結合する（ドッキング）",
+    "レッドストーン信号が入っていると Lua の操作が上書きされる"
+  ],
+  fns: [
+    ["extend()", "boolean", "伸ばす。状態が変わったら true"],
+    ["retract()", "boolean", "縮める"],
+    ["toggle()", "boolean", "切り替え"],
+    ["isExtended()", "boolean", "伸びているか"],
+    ["isAttachedToBlock()", "boolean", "前面に同じ座標空間のくっつけられるブロックがあるか（別機体との結合中は false になりうる）"]
+  ],
+  files: ["lua/sticker_test.lua — 試験・dock（相対速度で結合判定）・undock・manual"]
+},
+{
+  id: "ca_rack", group: "createarms 連携", title: "ミサイルラック", type: "missile_rack", block: "createarms のラック・パイロン全般", req: ["createarms", "Sable"],
+  intro: [
+    "Create Modern Warfare（createarms）が入っていると、そのブロックが周辺機器になる（createarms 側は変更しない）",
+    "munition rack・dual / AIM-120 / sidewinder / AGM-114 / GBU-39 ラック・トラピーズ・スティンガー発射機",
+    "撃ったミサイルは createarms 自身の誘導で飛ぶ。CC からは目標の変更と自爆ができる",
+    "操作できるのはその発射機から CC で撃ったミサイルだけ。IFF コードは近くの createarms レーダーのもの"
+  ],
+  fns: [
+    ["getMissile()", "table | nil", "<code>{ name, displayName, count, capacity, firable }</code>。firable は CC で撃てるか（ハイドラ・TV 誘導は不可）", true],
+    ["getCount()", "number", "弾数", true],
+    ["getCapacity()", "number", "装填上限（2連・4連ラックは 2・4）", true],
+    ["getFacing()", "string", "発射方向（機体上なら機体の座標系）", true],
+    ["fire([target])", "string | nil, string", "1発撃ってミサイル ID を返す。撃てなければ <code>nil, \"empty\"</code> / <code>\"unsupported\"</code> / <code>\"blocked\"</code>", true],
+    ["getMissiles()", "table[]", "この発射機から CC で撃った、飛行中のミサイルの表の一覧", true],
+    ["getMissileInfo(id)", "table | nil", "1発の表。消えた・自分のでなければ nil", true],
+    ["retarget(id, target)", "boolean", "目標を変える（中間誘導）。飛行時間・燃焼・信管のタイマーはリセットしない", true],
+    ["detonate(id)", "boolean", "自爆（魚雷は不可）", true]
+  ],
+  tables: [
+    { title: "目標（target）", rows: [
+      ["nil", "目標なし（ラック: 前方 500 / VLS: 真上 500。赤外線などは自分のシーカーで捕まえる）"],
+      ["{x=, y=, z=} または x, y, z", "座標"],
+      ["ID 文字列", "機体 ID（AshCC の radar・missile_radar の接触 ID）かエンティティ UUID。機体ならその機体を追う"] ]},
+    { title: "ミサイルの表", rows: [
+      ["id / kind / name", "ID（機体 ID）/ \"missile\" か \"torpedo\" / ブロック名"], ["x, y, z / vx, vy, vz / speed", "位置 / 速度（ブロック/秒）"],
+      ["age / maxAge", "飛行時間 / 寿命（秒）"], ["guidance / launchType / warhead", "誘導方式（radar, ir, laser, gps, gps_laser, none）など"],
+      ["iff", "IFF コード"], ["target / targetId", "目標点 {x,y,z} / 追っている機体・エンティティの ID"] ]}
+  ],
+  example: `local rack = peripheral.find("missile_rack")
+local radar = peripheral.find("radar")
+local ship = radar.scanSubLevels()[1]
+local id, why = rack.fire(ship.id)
+print(id or why)`,
+  files: ["lua/missile_control.lua — 一覧・発射・監視・AshCC レーダーの見越し点で誘導（guide）"]
+},
+{
+  id: "ca_vls", group: "createarms 連携", title: "VLS", type: "vls", block: "createarms:vls_hatch（下に vls_cell ×6）", req: ["createarms", "Sable"],
+  intro: [
+    "createarms 自身の VLS 発射を使う（ハッチが開き、ミサイルが真上に出てから目標へ向かう）",
+    "LRASM・トマホークなど対艦ミサイルは座標で撃つ"
+  ],
+  fns: [
+    ["getMissile()", "table | nil", "<code>{ name, displayName, count }</code>", true],
+    ["isReady()", "boolean", "装填済みでセルが揃っているか", true],
+    ["isValidStructure()", "boolean", "下に VLS セル6個があるか", true],
+    ["openHatch() / closeHatch()", "nil", "ハッチの開閉（launch も開ける。1秒前に開けると CIC の発射と同じ見た目）", true],
+    ["launch([target])", "string | nil, string", "発射してミサイル ID を返す。<code>nil, \"empty\"</code> / <code>\"no cell\"</code> / <code>\"blocked\"</code> / <code>\"unsupported\"</code>", true],
+    ["getMissiles()", "table[]", "この発射機から CC で撃った、飛行中のミサイルの表の一覧", true],
+    ["getMissileInfo(id)", "table | nil", "1発の表。消えた・自分のでなければ nil", true],
+    ["retarget(id, target)", "boolean", "目標を変える（中間誘導）。飛行時間・燃焼・信管のタイマーはリセットしない", true],
+    ["detonate(id)", "boolean", "自爆（魚雷は不可）", true]
+  ],
+  example: `local vls = peripheral.find("vls")
+vls.openHatch()
+sleep(1)
+local id = vls.launch(120, 80, -300)
+while vls.getMissileInfo(id) do
+  local m = vls.getMissileInfo(id)
+  print(("%.0f m/s  %.1f s"):format(m.speed, m.age))
+  sleep(0.5)
+end`
+},
+{
+  id: "ca_cic", group: "createarms 連携", title: "CIC 端末", type: "cic_terminal", block: "createarms:cic_terminal", req: ["createarms", "Sable"],
+  intro: [
+    "端末の発射キューを使う: ハッチが開いて1秒後に発射、セルごとに 0.75 秒間隔",
+    "ミサイル操作は、端末のキュー・画面から撃ったものと、リンク済みセルから CC で撃ったものにも効く",
+    "ID 目標のときは対艦ミサイルを飛ばさない（端末の画面と同じ）"
+  ],
+  fns: [
+    ["getLinkedVls()", "table[]", "<code>{ index, x, y, z, loaded, ready, missile }</code> の一覧（リンク順）", true],
+    ["launch([target], [cells])", "number", "キューに入れた数。cells は nil=全部 / 番号 / 番号の表。目標なしなら端末の目標点", true],
+    ["getQueueSize()", "number", "キューの残り", true],
+    ["getActiveMissiles()", "string[]", "端末の飛行中ミサイル ID（画面から撃ったものも）", true],
+    ["getTargetPos() / setTargetPos(x, y, z)", "table | nil", "端末の目標点", true],
+    ["getAutoEngage()", "table", "<code>{ vls, ciws }</code>", true],
+    ["setVlsAutoEngage(on) / setCiwsAutoEngage(on)", "nil", "自動交戦（VLS はパトリオットで敵ミサイルを迎撃）", true],
+    ["getContacts()", "table[] | nil, string", "端末のレーダーの接触（missile_radar と同じ形）。無ければ <code>nil, \"no radar\"</code>", true],
+    ["getMissiles()", "table[]", "この発射機から CC で撃った、飛行中のミサイルの表の一覧", true],
+    ["getMissileInfo(id)", "table | nil", "1発の表。消えた・自分のでなければ nil", true],
+    ["retarget(id, target)", "boolean", "目標を変える（中間誘導）。飛行時間・燃焼・信管のタイマーはリセットしない", true],
+    ["detonate(id)", "boolean", "自爆（魚雷は不可）", true]
+  ],
+  example: `local cic = peripheral.find("cic_terminal")
+print(cic.launch({ x = 500, y = 70, z = -200 }, { 1, 2 }) .. " queued")
+sleep(3)
+for _, m in ipairs(cic.getMissiles()) do print(m.id, m.name) end`
+},
+{
+  id: "ca_radar", group: "createarms 連携", title: "ミサイル用レーダー", type: "missile_radar", block: "createarms の捜索レーダー・APG レーダー", req: ["createarms", "Sable"],
+  intro: [
+    "接触の id はそのままミサイルの目標に渡せる",
+    "選択目標は MFD のレーダー誘導発射が狙う目標"
+  ],
+  fns: [
+    ["getContacts()", "table[]", "<code>{ id, x, y, z, distance, bearing, type, friendly }</code> の一覧。bearing は atan2(dx, dz) の度", true],
+    ["getSelectedTarget()", "table | nil", "選択中の接触", true],
+    ["selectTarget(id | nil)", "boolean", "選択（味方は選べない）", true],
+    ["getIffCode() / setIffCode(n)", "number", "同じ 0 以外のコードは味方", true],
+    ["isRadiating()", "boolean", "レッドストーンで停止中は false", true],
+    ["getScanRange()", "number", "探知距離", true]
+  ]
+},
+{
+  id: "ca_cmds", group: "createarms 連携", title: "チャフ・フレア散布機", type: "countermeasure_dispenser", block: "createarms:countermeasure_dispenser", req: ["createarms", "Sable"],
+  intro: ["フレアは赤外線誘導、チャフはレーダー誘導のミサイルを外す。0.5 秒ごとに出せる"],
+  fns: [
+    ["deploy([mode])", "boolean", "出せたら true（クールダウン中・弾切れは false）。mode を渡すとその回だけ切り替え", true],
+    ["getMode() / setMode(mode)", "string", "<code>\"flare\"</code> / <code>\"chaff\"</code> / <code>\"both\"</code>", true],
+    ["getCount()", "number", "装填数", true],
+    ["getCapacity()", "number", "上限", true]
+  ]
+},
+{
+  id: "ca_irondome", group: "createarms 連携", title: "アイアンドーム", type: "iron_dome", block: "createarms のアイアンドーム・レーダー", req: ["createarms", "Sable"],
+  intro: ["画面の設定を CC から読み書きする"],
+  fns: [
+    ["getSettings()", "table", "<code>{ autoEngage, scanRadius, targetMissiles, targetPlayers, targetShips, iff, ammo }</code>", true],
+    ["getAmmo()", "number", "弾数", true],
+    ["setAutoEngage(on)", "nil", "自動交戦", true],
+    ["setScanRadius(r)", "nil", "探知半径", true],
+    ["setTargets(missiles, players, ships)", "nil", "狙う対象", true],
+    ["setIffCode(n)", "nil", "IFF コード", true]
+  ]
+},
+{
+  id: "cbc_mount", group: "Create Big Cannons 連携", title: "砲架（cannon_mount）", type: "cannon_mount", block: "createbigcannons:cannon_mount / fixed_cannon_mount", req: ["Create Big Cannons"],
+  intro: [
+    "CBC の砲架・固定砲架がそのまま周辺機器になる。載っている砲は CBC の大砲・迫撃砲・オートキャノン、AshCC のロータリー機関砲・レールガン・レーザー砲",
+    "角度はレーザーと同じ: <code>yaw</code>（北=0、東が正、-180〜180）、<code>pitch</code>（上が正）。機体の上では機体の北・上",
+    "旋回は回転力なしで <code>aimSpeed</code>（45°/秒、<code>setAimSpeed</code> で最大 <code>maxAimSpeed</code> 180°/秒）。俯仰の範囲は砲架と砲の種類で決まる（<code>maxElevation</code> / <code>maxDepression</code>）。固定砲架は回せない",
+    "<code>aimAt</code> は込めてある弾の重力と空気抵抗を CBC と同じ式で計算して照準する（動く目標は <code>velocity</code> で見越す）",
+    "大砲・迫撃砲・レールガンは <code>fire()</code> で1発、オートキャノンは <code>setFiring(true)</code> で撃ち続ける",
+    "<code>assemble()</code> はレッドストーンの組み立てと同じ。CC で組み立てたあとレッドストーンを変えても分解されない"
+  ],
+  fns: [
+    ["isAssembled()", "boolean", "砲が組み立ててあるか", true],
+    ["assemble()", "true | false, 理由", "前の砲を組み立てる（理由はゴーグルに出るものと同じ）", true],
+    ["disassemble()", "—", "分解する", true],
+    ["getCannon()", "table | nil", "砲の情報（下の表）", true],
+    ["setAim(yaw, pitch)", "yaw, pitch", "その角度へ回す。pitch は砲架の範囲に制限した値を返す", true],
+    ["aimAt(x, y, z, [opts])", "ok, yaw, pitch, 秒", "ワールド座標に当たるように狙う。opts = <code>{ velocity = {x,y,z}（目標のブロック/秒）, high = true（曲射）, speed = 砲口初速ブロック/秒（弾が分からないとき）}</code>。届かない・弾が無いと <code>false, 理由</code>", true],
+    ["getAim()", "yaw, pitch", "いまの角度", true],
+    ["getTargetAim()", "yaw, pitch", "Lua で指定した角度（Lua 制御でなければ何も返さない）", true],
+    ["isAimed()", "boolean", "指定した角度に着いたか", true],
+    ["releaseAim()", "—", "Lua の旋回をやめる（砲架の回転入力で回る状態に戻す）", true],
+    ["setAimSpeed(deg)", "number", "旋回速度（°/秒）。使われる値を返す", true],
+    ["getAimSpeed()", "number", "旋回速度", true],
+    ["getMuzzle()", "table", "次の弾が出る位置 <code>{x,y,z, pivot={...}, direction={...}}</code>（pivot は回転の中心、direction は砲身のワールド方向）", true],
+    ["getBallistics()", "table | nil", "次の弾 <code>{ speed（ブロック/秒）, gravity（ブロック/秒²、負=下）, drag, quadraticDrag, lifetime（秒、0=着弾まで）, muzzle, ammo }</code>。弾が無ければ nil", true],
+    ["fire()", "true | false, 理由", "大砲・迫撃砲・レールガンを1発撃つ。オートキャノンは <code>false, \"autocannons fire with setFiring\"</code>", true],
+    ["setFiring(on, [rate])", "—", "オートキャノンとレーザー砲の引き金。rate はオートキャノンの CBC の発射速度 1..15（既定 15）", true],
+    ["isFiring()", "boolean", "オートキャノンが撃っているか", true],
+    ["getAmmo()", "table | nil", "装填: オートキャノン <code>{ rounds, next, magazine }</code>、レールガン <code>{ name, count, capacity }</code>、大砲 <code>{ projectile, charges }</code>", true],
+    ["getSubLevel()", "string | nil", "載っている機体のID", true]
+  ],
+  tables: [
+    { title: "getCannon()", rows: [
+      ["type", "\"big_cannon\" / \"drop_mortar\" / \"autocannon\" / \"rotary_autocannon\" / \"railgun\" / \"laser_cannon\""],
+      ["yaw, pitch", "いまの角度"], ["maxElevation, maxDepression", "俯仰の範囲（度）"], ["canAim", "Lua で回せるか"], ["fixed", "固定砲架か"],
+      ["blocks", "砲のブロック数"], ["fireRate, firing, roundsPerMinute", "オートキャノン"], ["spin", "ロータリー機関砲の回転 0..1"],
+      ["energy, energyCapacity, energyPerShot, cooldown, rails", "レールガン（cooldown は秒）"] ]}
+  ],
+  config: "cannonMount: aimSpeed (45°/秒), maxAimSpeed (180°/秒)",
+  example: `local gun = peripheral.find("cannon_mount")
+gun.assemble()
+local ok, yaw, pitch, t = gun.aimAt(120, 80, -300, { velocity = { x = 0, y = 0, z = 20 } })
+while not gun.isAimed() do sleep(0.05) end
+print(gun.fire())`,
+  files: ["lua/cbc_turret.lua — レーダー＋全砲架の自動砲塔（IFF・味方登録・射線上の味方で発射保留）"]
+},
+{
+  id: "cbc_rotary", group: "Create Big Cannons 連携", title: "ロータリー機関砲", type: "cannon_mount", block: "ashcc:rotary_autocannon_breech / rotary_autocannon_barrel", req: ["Create Big Cannons"],
+  intro: [
+    "CBC のオートキャノンと同じ組み方: 尾栓の前に砲身（最大4）。尾栓は向いた方が砲口側。置くと隣とつながる（サバイバルでも）",
+    "弾は CBC のオートキャノン弾・機関銃弾・弾倉がそのまま使える。ベルト給弾で 32 発まで込められる（CBC の尾栓は 5）",
+    "引き金（レッドストーンか <code>setFiring</code>）を引くと <code>spinUpSeconds</code>（1.5 秒）で回転が上がり、<code>minSpin</code>（0.25）から撃ち始める",
+    "発射速度 = 回転 × rate/15 × <code>maxRpm</code>（毎分 1200 発 = 1 tick に1発。最大 2400）。離すと <code>spinDownSeconds</code>（2.5 秒）で止まる",
+    "素材 <code>ashcc:rotary</code> は初速 4 + 砲身ごとに 1.5（3本まで）ブロック/tick、弾の寿命 2 秒。<code>data/ashcc/autocannon_materials/rotary.json</code> で変えられる"
+  ],
+  fns: [],
+  config: "rotaryAutocannon: maxRpm (1200), spinUpSeconds (1.5), spinDownSeconds (2.5), minSpin (0.25)"
+},
+{
+  id: "cbc_railgun", group: "Create Big Cannons 連携", title: "レールガン", type: "cannon_mount", block: "ashcc:railgun_breech / railgun_rail", req: ["Create Big Cannons"],
+  intro: [
+    "CBC の砲架に載せる新しい砲の種類。尾栓1つの前にレールを一列（1〜<code>maxRails</code> 15）。尾栓は向いた方がレール側",
+    "弾は CBC の1ブロックの砲弾（徹甲弾・榴弾・徹甲榴弾など）。手で・ホッパーで尾栓か砲架に入れる。<code>ammoCapacity</code>（8）発まで。スニーク＋素手で1発戻す",
+    "1発に <code>energyPerShot</code>（20000 FE）。砲架（組み立て後）か尾栓（組み立て前）に FE を入れる（容量 100000、毎 tick 5000 まで）",
+    "初速 = <code>baseSpeed</code> 12 + <code>speedPerRail</code> 3 ×（レール数−1）ブロック/tick、上限 <code>maxSpeed</code> 60（音速は約 17 なのでレール3本以上で超音速）。火薬を使わず失敗・暴発もない。ばらつきは <code>spread</code>（0.05）",
+    "演出: 砲口の閃光と衝撃波の輪、CBC の衝撃波（音速で遅れて届く発射音と揺れ）、光る弾道痕、超音速ならマッハリング・近くを通過したときのソニックブーム・低空通過で舞う土埃、着弾の閃光",
+    "レッドストーン（立ち上がり）か <code>fire()</code> で撃つ。次まで <code>cooldownSeconds</code>（2 秒）。素手で尾栓を使うと弾と電力を表示"
+  ],
+  fns: [],
+  config: "railgun: baseSpeed (12), speedPerRail (3), maxSpeed (60), maxRails (15), energyPerShot (20000), energyCapacity (100000), maxReceive (5000), cooldownSeconds (2), ammoCapacity (8), spread (0.05), recoil (4)"
+},
+{
+  id: "cbc_laser", group: "Create Big Cannons 連携", title: "レーザー砲", type: "cannon_mount", block: "ashcc:laser_cannon_emitter / laser_cannon_lens", req: ["Create Big Cannons"],
+  intro: [
+    "CBC の砲架に載せる砲の種類。発振器1つの前にレンズを一列（1〜<code>maxLenses</code> 8）。発振器はレンズの方を向ける",
+    "引き金（発射側のレッドストーンか <code>setFiring(true)</code>）の間、砲身の向きに光線を出し続ける。AshCC のレーザーと同じくブロックを焼き切り、エンティティにダメージと着火、Sable の機体を押し、自機に反動",
+    "レンズが多いほど強い: 射程 <code>baseRange</code> 96 + <code>rangePerLens</code> 48、焼き切り 1.5 + 1.0、ダメージ 6 + 2（2枚目から1枚ごと）",
+    "照射中は毎 tick <code>energyPerTick</code>（400 FE）。容量 200000、砲架か組み立て前の発振器に給電。連続 10 秒で過熱、5 秒で冷える",
+    "<code>fire()</code> は使わない（<code>false, \"lasers fire with setFiring\"</code>）。<code>aimAt</code> は直線で狙う。<code>getCannon()</code> に <code>energy, energyCapacity, energyPerTick, heat, overheated, firing, trigger, range, beamLength, lenses</code>"
+  ],
+  fns: [],
+  config: "laserCannon: maxLenses (8), baseRange (96), rangePerLens (48), baseBlockPower (1.5), blockPowerPerLens (1.0), baseEntityDamage (6), entityDamagePerLens (2), igniteSeconds (5), breakBlocks (true), dropBlocks (false), damageOwnSubLevel (false), impactForce (300), recoil (true), energyPerTick (400), energyCapacity (200000), maxReceive (10000), maxFireSeconds (10), cooldownSeconds (5)"
+}
+];
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const stripTags = s => String(s).replace(/<[^>]+>/g, "");
+const MT_TITLE = "サーバーのメインスレッドで実行（呼ぶと 1 tick 待つ）";
+
+// シグネチャ: 関数名を強調し、[省略可] を薄くする
+function sigHtml(sig) {
+  return esc(sig)
+    .replace(/([A-Za-z_]\w*)(?=\()/g, '<span class="fname">$1</span>')
+    .replace(/\[([^\[\]]*)\]/g, '<span class="opt">[$1]</span>');
+}
+
+// 例のコード用の簡単な Lua 色付け
+const LUA_KW = /^(?:and|break|do|else|elseif|end|false|for|function|goto|if|in|local|nil|not|or|repeat|return|then|true|until|while)$/;
+function luaHtml(src) {
+  const re = /(--[^\n]*)|("(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*')|(\b\d+(?:\.\d+)?\b)|([A-Za-z_]\w*)/g;
+  let out = "", last = 0, m;
+  while ((m = re.exec(src))) {
+    out += esc(src.slice(last, m.index));
+    const t = m[0];
+    if (m[1]) out += `<span class="c">${esc(t)}</span>`;
+    else if (m[2]) out += `<span class="s">${esc(t)}</span>`;
+    else if (m[3]) out += `<span class="n">${t}</span>`;
+    else if (LUA_KW.test(t)) out += `<span class="k">${t}</span>`;
+    else if (src[re.lastIndex] === "(") out += `<span class="f">${t}</span>`;
+    else out += t;
+    last = re.lastIndex;
+  }
+  return out + esc(src.slice(last));
+}
+
+// "名前 (既定値), ..." を [名前, 既定値] の列にする。先頭の "〇〇: " は注記
+function parseConfig(s) {
+  let note = "";
+  const pre = s.match(/^([^:()]+):\s*(.*)$/);
+  if (pre) { note = pre[1]; s = pre[2]; }
+  const items = [];
+  let depth = 0, cur = "";
+  for (const ch of s) {
+    if (ch === "(") depth++;
+    if (ch === ")") depth--;
+    if (ch === "," && depth === 0) { items.push(cur.trim()); cur = ""; } else cur += ch;
+  }
+  if (cur.trim()) items.push(cur.trim());
+  return { note, items: items.map(it => { const k = it.match(/^(\w+)\s*\((.*)\)$/); return k ? [k[1], k[2]] : [it, ""]; }) };
+}
+
+function badgesHtml(p, withBlock) {
+  let s = "";
+  if (p.type) s += `<span class="badge">型 ${esc(p.type)}</span>`;
+  if (withBlock && p.block) s += `<span class="badge id">${esc(p.block)}</span>`;
+  for (const r of p.req || []) s += `<span class="badge req">要 ${esc(r)}</span>`;
+  return s ? `<div class="badges">${s}</div>` : "";
+}
+
+function renderSection(p) {
+  const parts = [];
+  let body = "";
+  if (p.intro) body += `<ul class="notes">${p.intro.map(t => `<li>${t}</li>`).join("")}</ul>`;
+  if (p.fns) {
+    parts.push(["fns", "関数"]);
+    body += `<h3 id="${p.id}--fns">関数 <span class="n">${p.fns.length}</span></h3><div class="fns">`;
+    const used = new Set();
+    for (const [sig, ret, desc, mt] of p.fns) {
+      let fid = `${p.id}-${(sig.match(/[A-Za-z_]\w*/) || ["fn"])[0]}`;
+      for (let i = 2; used.has(fid); i++) fid = fid.replace(/(-\d+)?$/, `-${i}`);
+      used.add(fid);
+      const retHtml = ret === "—" ? "戻り値なし" : `→ ${esc(ret)}`;
+      body += `<div class="fn" id="${fid}" data-search="${esc(stripTags(sig + " " + ret + " " + desc).toLowerCase())}">
+        <a class="anchor" href="#${fid}" aria-label="この関数へのリンク">#</a>
+        <div class="sig"><code>${sigHtml(sig)}</code><span class="ret">${retHtml}</span></div>
+        <div class="desc">${desc}${mt ? `<span class="tick" title="${MT_TITLE}">1 tick</span>` : ""}</div></div>`;
+    }
+    body += `</div>`;
+  }
+  (p.tables || []).forEach((t, i) => {
+    if (i === 0) parts.push([`tbl`, "表"]);
+    body += `<h3${i === 0 ? ` id="${p.id}--tbl"` : ""}>${esc(t.title)}</h3><div class="tablewrap"><table><tr><th>項目</th><th>内容</th></tr>`;
+    body += t.rows.map(([k, v]) => `<tr><td><code>${esc(k)}</code></td><td>${v}</td></tr>`).join("");
+    body += `</table></div>`;
+  });
+  if (p.events) {
+    parts.push(["ev", "イベント"]);
+    body += `<h3 id="${p.id}--ev">イベント</h3><div class="tablewrap"><table><tr><th>名前</th><th>引数</th><th>いつ</th></tr>`;
+    body += p.events.map(([n, a, w]) => `<tr><td><code>${esc(n)}</code></td><td>${esc(a)}</td><td>${esc(w)}</td></tr>`).join("");
+    body += `</table></div>`;
+  }
+  if (p.example) {
+    parts.push(["ex", "例"]);
+    body += `<h3 id="${p.id}--ex">例</h3><div class="code"><button class="copy" type="button" data-copy-pre>コピー</button><pre><code>${luaHtml(p.example)}</code></pre></div>`;
+  }
+  if (p.config) {
+    parts.push(["cfg", "設定"]);
+    const c = parseConfig(p.config);
+    body += `<h3 id="${p.id}--cfg">設定 <span class="n">ashcc-server.toml</span></h3>`;
+    if (c.note) body += `<p class="cfg-note">${esc(c.note)}</p>`;
+    body += `<div class="cfg">${c.items.map(([k, v]) => `<div><code>${esc(k)}</code><span>${esc(v)}</span></div>`).join("")}</div>`;
+  }
+  if (p.files) {
+    parts.push(["files", "関連プログラム"]);
+    body += `<h3 id="${p.id}--files">関連プログラム</h3><ul class="files">${p.files.map(f => {
+      const [path, ...rest] = f.split(" — ");
+      return `<li><code>${esc(path)}</code>${rest.length ? ` — ${esc(rest.join(" — "))}` : ""}</li>`;
+    }).join("")}</ul>`;
+  }
+
+  let head = `<div class="eyebrow">${esc(p.group)}</div><h2><a href="#${p.id}">${esc(p.title)}</a></h2>${badgesHtml(p, true)}`;
+  const snippet = p.type && `local ${p.type.toLowerCase().replace(/^create_/, "")} = peripheral.find("${p.type}")`;
+  if (snippet || parts.length > 1) {
+    head += `<div class="head-row">`;
+    if (snippet) head += `<button class="snippet" type="button" data-copy="${esc(snippet)}" title="クリックでコピー"><code>${luaHtml(snippet)}</code><span class="hint">コピー</span></button>`;
+    if (parts.length > 1) head += `<div class="subnav">${parts.map(([k, l]) => `<a href="#${p.id}--${k}">${l}</a>`).join("")}</div>`;
+    head += `</div>`;
+  }
+  return `<section class="per" id="${p.id}"><header class="per-head">${head}</header><div class="per-body">${body}</div></section>`;
+}
+
+function render() {
+  let navHtml = "", ovHtml = "", lastGroup = null;
+  for (const p of DATA) {
+    if (p.group !== lastGroup) {
+      navHtml += `<div class="group">${esc(p.group)}</div>`;
+      ovHtml += `${lastGroup === null ? "" : "</div></div>"}<div class="ov-group"><h2>${esc(p.group)}</h2><div class="cards">`;
+      lastGroup = p.group;
+    }
+    navHtml += `<a href="#${p.id}" data-for="${p.id}"><span>${esc(p.title)}</span>${p.type ? `<small>${esc(p.type)}</small>` : ""}</a>`;
+    ovHtml += `<a class="card" href="#${p.id}"><span class="t">${esc(p.title)}</span>
+      <span class="m"><code>${esc(p.type || (p.id === "imu_api" ? "imu（グローバル）" : "概要"))}</code><span>${p.fns ? `${p.fns.length} 関数` : ""}</span></span>
+      ${(p.req || []).length ? `<div class="badges">${p.req.map(r => `<span class="badge req">要 ${esc(r)}</span>`).join("")}</div>` : ""}</a>`;
+  }
+  document.getElementById("nav").innerHTML = navHtml;
+  document.getElementById("overview").innerHTML = ovHtml + "</div></div>";
+  document.getElementById("content").innerHTML = DATA.map(renderSection).join("");
+}
+
+// 一致した文字を <mark> で囲む（ボタン・隠れた行は除く）
+function highlight(root, q) {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode: n => n.parentElement.closest("button, .hidden") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+  });
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  for (const n of nodes) {
+    const t = n.nodeValue, lower = t.toLowerCase();
+    let i = lower.indexOf(q);
+    if (i < 0) continue;
+    const frag = document.createDocumentFragment();
+    let last = 0;
+    while (i >= 0) {
+      frag.append(t.slice(last, i));
+      const m = document.createElement("mark");
+      m.textContent = t.slice(i, i + q.length);
+      frag.append(m);
+      last = i + q.length;
+      i = lower.indexOf(q, last);
+    }
+    frag.append(t.slice(last));
+    n.replaceWith(frag);
+  }
+}
+
+const originals = new Map();
+function filter(raw) {
+  const q = raw.trim().toLowerCase();
+  let shown = 0, fnHits = 0;
+  for (const sec of document.querySelectorAll("section.per")) {
+    if (!originals.has(sec)) originals.set(sec, sec.innerHTML);
+    sec.innerHTML = originals.get(sec);
+    const rows = sec.querySelectorAll(".fn");
+    let hit = 0;
+    for (const r of rows) {
+      const ok = !q || r.dataset.search.includes(q);
+      r.classList.toggle("hidden", !ok);
+      if (ok) hit++;
+    }
+    const textHit = q && sec.textContent.toLowerCase().includes(q);
+    const show = !q || hit > 0 || textHit;
+    // 関数が一致しなくても本文が一致した節は全関数を見せる
+    if (q && hit === 0 && textHit) rows.forEach(r => r.classList.remove("hidden"));
+    sec.classList.toggle("hidden", !show);
+    document.querySelector(`nav a[data-for="${sec.id}"]`).classList.toggle("hidden", !show);
+    if (show) { shown++; if (q) fnHits += hit; }
+    if (q && show) highlight(sec, q);
+  }
+  document.getElementById("intro").classList.toggle("hidden", !!q);
+  document.getElementById("empty").classList.toggle("hidden", shown > 0);
+  document.getElementById("count").textContent = q ? `${shown} 件 · 一致した関数 ${fnHits}` : "";
+  nav.querySelectorAll(".group").forEach(g => {
+    let a = g.nextElementSibling, any = false;
+    for (; a && a.tagName === "A"; a = a.nextElementSibling) if (!a.classList.contains("hidden")) any = true;
+    g.classList.toggle("hidden", !any);
+  });
+  updateActive();
+}
+
+// 目次: いま読んでいる節を強調
+function updateActive() {
+  let cur = null;
+  for (const sec of document.querySelectorAll("section.per:not(.hidden)")) {
+    if (sec.getBoundingClientRect().top <= 120) cur = sec.id; else break;
+  }
+  for (const a of nav.querySelectorAll("a")) {
+    const on = a.dataset.for === cur;
+    if (on && !a.classList.contains("active")) {
+      const r = a.getBoundingClientRect(), s = side.getBoundingClientRect();
+      if (r.top < s.top + 60 || r.bottom > s.bottom - 20) side.scrollTop += r.top - s.top - s.height / 3;
+    }
+    a.classList.toggle("active", on);
+  }
+  toTop.classList.toggle("show", scrollY > 600);
+}
+
+// ページ内リンクは JS でスクロールする（data: URL や埋め込み表示では # の移動が効かないことがある）
+function jumpTo(id, push = true) {
+  if (id === "top" || !id) {
+    scrollTo({ top: 0, behavior: "smooth" });
+  } else {
+    let el = document.getElementById(id);
+    if (!el) return;
+    if (el.closest(".hidden")) { search.value = ""; filter(""); el = document.getElementById(id); }
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    const target = el.matches(".fn, section.per") ? el : null;
+    if (target) {
+      target.classList.remove("flash");
+      void target.offsetWidth;
+      target.classList.add("flash");
+    }
+  }
+  if (push) try { history.pushState(null, "", "#" + id); } catch (e) {}
+}
+
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 1400);
+}
+async function copyText(text, label) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (e) {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.append(ta);
+    ta.select();
+    try { document.execCommand("copy"); } catch (e2) {}
+    ta.remove();
+  }
+  toast(label);
+}
+
+function setupTheme() {
+  const btn = document.getElementById("themeBtn");
+  const order = ["auto", "light", "dark"], label = { auto: "自動", light: "ライト", dark: "ダーク" };
+  let mode = "auto";
+  try { mode = localStorage.getItem("ashcc-theme") || "auto"; } catch (e) {}
+  const apply = () => {
+    if (mode === "auto") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", mode);
+    btn.textContent = label[mode];
+  };
+  btn.addEventListener("click", () => {
+    mode = order[(order.indexOf(mode) + 1) % order.length];
+    try { localStorage.setItem("ashcc-theme", mode); } catch (e) {}
+    apply();
+  });
+  apply();
+}
+
+render();
+setupTheme();
+const nav = document.getElementById("nav"), side = document.getElementById("side");
+const search = document.getElementById("search"), toTop = document.getElementById("toTop");
+const setNav = open => document.body.classList.toggle("nav-open", open);
+
+search.addEventListener("input", e => filter(e.target.value));
+search.addEventListener("keydown", e => { if (e.key === "Escape") { search.value = ""; filter(""); search.blur(); } });
+document.addEventListener("keydown", e => {
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
+  if ((e.key === "/" && !typing) || (e.key.toLowerCase() === "k" && (e.ctrlKey || e.metaKey))) {
+    e.preventDefault();
+    search.focus();
+    search.select();
+  } else if (e.key === "Escape") setNav(false);
+});
+document.getElementById("menuBtn").addEventListener("click", () => setNav(!document.body.classList.contains("nav-open")));
+document.getElementById("backdrop").addEventListener("click", () => setNav(false));
+nav.addEventListener("click", e => { if (e.target.closest("a")) setNav(false); });
+toTop.addEventListener("click", () => scrollTo({ top: 0 }));
+document.addEventListener("click", e => {
+  const link = e.target.closest('a[href^="#"]');
+  if (link && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+    e.preventDefault();
+    return jumpTo(decodeURIComponent(link.getAttribute("href").slice(1)));
+  }
+  const snip = e.target.closest("[data-copy]");
+  if (snip) return copyText(snip.dataset.copy, "コピーしました");
+  const btn = e.target.closest("[data-copy-pre]");
+  if (btn) copyText(btn.parentElement.querySelector("pre").textContent, "例をコピーしました");
+});
+let ticking = false;
+addEventListener("scroll", () => {
+  if (ticking) return;
+  ticking = true;
+  requestAnimationFrame(() => { updateActive(); ticking = false; });
+}, { passive: true });
+addEventListener("popstate", () => jumpTo(decodeURIComponent(location.hash.slice(1)) || "top", false));
+if (location.hash.length > 1) jumpTo(decodeURIComponent(location.hash.slice(1)), false);
+updateActive();
+</script>
+</body>
+</html>

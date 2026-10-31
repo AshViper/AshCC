@@ -1,0 +1,40 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>radar_3d frames</title>
+<style>body{background:#222;color:#ccc;font:14px sans-serif;margin:16px}canvas{display:block;margin:4px 0 20px;max-width:100%;image-rendering:pixelated}</style>
+<script src="frames.js"></script>
+<body>
+<script>
+// Replays the recorded HD monitor commands (see run.js) on one canvas per frame.
+const col = c => typeof c === 'number' ? '#' + (c > 0xFFFFFF ? (c & 0xFFFFFF).toString(16).padStart(6, '0') + ((c >>> 24) & 255).toString(16).padStart(2, '0') : c.toString(16).padStart(6, '0')) : c;
+const pts = p => Array.isArray(p[0]) ? p : p.reduce((a, v, i) => (i % 2 ? a[a.length - 1].push(v) : a.push([v]), a), []);
+const labels = [];
+FRAMES.forEach((f, i) => {
+  const h = document.createElement('div'); h.textContent = 'frame ' + i + ' ' + (labels[i] || ''); document.body.appendChild(h);
+  const cv = document.createElement('canvas'); cv.width = 1024; cv.height = 640; document.body.appendChild(cv);
+  const g = cv.getContext('2d');
+  for (const [op, ...a] of f) {
+    switch (op) {
+      case 'fill': g.fillStyle = col(a[0]); g.fillRect(0, 0, 1024, 640); break;
+      case 'fillRect': g.fillStyle = col(a[4]); g.fillRect(a[0], a[1], a[2], a[3]); break;
+      case 'drawRect': g.strokeStyle = col(a[4]); g.lineWidth = a[5] || 1; g.strokeRect(a[0] + .5, a[1] + .5, a[2] - 1, a[3] - 1); break;
+      case 'fillPolygon': case 'drawPolygon': {
+        g.beginPath(); pts(a[0]).forEach(([x, y], k) => k ? g.lineTo(x, y) : g.moveTo(x, y)); g.closePath();
+        if (op === 'fillPolygon') { g.fillStyle = col(a[1]); g.fill(); g.strokeStyle = col(a[1]); g.lineWidth = .6; g.stroke(); }
+        else { g.strokeStyle = col(a[1]); g.lineWidth = a[2] || 1; g.stroke(); }
+        break;
+      }
+      case 'drawLine': g.strokeStyle = col(a[4]); g.lineWidth = a[5] || 1; g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(a[2], a[3]); g.stroke(); break;
+      case 'fillCircle': g.fillStyle = col(a[3]); g.beginPath(); g.arc(a[0], a[1], a[2], 0, 7); g.fill(); break;
+      case 'drawCircle': g.strokeStyle = col(a[3]); g.lineWidth = a[4] || 1; g.beginPath(); g.arc(a[0], a[1], a[2], 0, 7); g.stroke(); break;
+      case 'fillEllipse': g.fillStyle = col(a[4]); g.beginPath(); g.ellipse(a[0], a[1], a[2], a[3], 0, 0, 7); g.fill(); break;
+      case 'drawText': {
+        const o = a[4] || {}; const s = o.scale || 1;
+        g.font = (16 * s) + 'px monospace'; g.textBaseline = 'top'; g.textAlign = o.align || 'left';
+        g.fillStyle = col(a[3]); g.fillText(a[2], a[0], a[1]); break;
+      }
+    }
+  }
+});
+</script>
+</body>

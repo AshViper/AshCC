@@ -1,0 +1,80 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "ashcc:block/laser_cannon_lens_side",
+    "side": "ashcc:block/laser_cannon_lens_side",
+    "end": "ashcc:block/laser_cannon_lens_end"
+  },
+  "elements": [
+    {
+      "from": [
+        3,
+        3,
+        0
+      ],
+      "to": [
+        13,
+        13,
+        16
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3,
+            3,
+            13,
+            13
+          ],
+          "texture": "#end"
+        },
+        "south": {
+          "uv": [
+            3,
+            3,
+            13,
+            13
+          ],
+          "texture": "#end"
+        },
+        "east": {
+          "uv": [
+            3,
+            0,
+            13,
+            16
+          ],
+          "texture": "#side",
+          "rotation": 90
+        },
+        "west": {
+          "uv": [
+            3,
+            0,
+            13,
+            16
+          ],
+          "texture": "#side",
+          "rotation": 90
+        },
+        "up": {
+          "uv": [
+            3,
+            0,
+            13,
+            16
+          ],
+          "texture": "#side"
+        },
+        "down": {
+          "uv": [
+            3,
+            0,
+            13,
+            16
+          ],
+          "texture": "#side"
+        }
+      }
+    }
+  ]
+}

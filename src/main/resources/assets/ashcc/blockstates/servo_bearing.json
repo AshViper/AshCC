@@ -1,0 +1,56 @@
+{
+  "variants": {
+    "assembled=false,facing=up": {
+      "model": "ashcc:block/servo_bearing"
+    },
+    "assembled=true,facing=up": {
+      "model": "ashcc:block/servo_bearing_assembled"
+    },
+    "assembled=false,facing=down": {
+      "model": "ashcc:block/servo_bearing",
+      "x": 180
+    },
+    "assembled=true,facing=down": {
+      "model": "ashcc:block/servo_bearing_assembled",
+      "x": 180
+    },
+    "assembled=false,facing=north": {
+      "model": "ashcc:block/servo_bearing",
+      "x": 90
+    },
+    "assembled=true,facing=north": {
+      "model": "ashcc:block/servo_bearing_assembled",
+      "x": 90
+    },
+    "assembled=false,facing=south": {
+      "model": "ashcc:block/servo_bearing",
+      "x": 90,
+      "y": 180
+    },
+    "assembled=true,facing=south": {
+      "model": "ashcc:block/servo_bearing_assembled",
+      "x": 90,
+      "y": 180
+    },
+    "assembled=false,facing=east": {
+      "model": "ashcc:block/servo_bearing",
+      "x": 90,
+      "y": 90
+    },
+    "assembled=true,facing=east": {
+      "model": "ashcc:block/servo_bearing_assembled",
+      "x": 90,
+      "y": 90
+    },
+    "assembled=false,facing=west": {
+      "model": "ashcc:block/servo_bearing",
+      "x": 90,
+      "y": 270
+    },
+    "assembled=true,facing=west": {
+      "model": "ashcc:block/servo_bearing_assembled",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "IRI",
+    "IFI",
+    "IBI"
+  ],
+  "key": {
+    "I": { "item": "minecraft:iron_ingot" },
+    "R": { "item": "minecraft:redstone" },
+    "F": { "item": "minecraft:fire_charge" },
+    "B": { "item": "minecraft:blast_furnace" }
+  },
+  "result": { "id": "ashcc:thruster", "count": 1 }
+}

@@ -1,0 +1,57 @@
+{
+  "values": [
+    "ashcc:decoy_launcher",
+    "ashcc:transponder",
+    "ashcc:laser",
+    "ashcc:seeker",
+    "ashcc:radar",
+    "ashcc:hd_monitor",
+    "ashcc:thruster",
+    "ashcc:antigravity_core",
+    "ashcc:link_hub",
+    {
+      "id": "ashcc:flap_bearing",
+      "required": false
+    },
+    {
+      "id": "ashcc:quad_flap_bearing",
+      "required": false
+    },
+    {
+      "id": "ashcc:servo_bearing",
+      "required": false
+    },
+    {
+      "id": "ashcc:servo_bearing_plate",
+      "required": false
+    },
+    {
+      "id": "ashcc:rotary_autocannon_breech",
+      "required": false
+    },
+    {
+      "id": "ashcc:rotary_autocannon_barrel",
+      "required": false
+    },
+    {
+      "id": "ashcc:railgun_breech",
+      "required": false
+    },
+    {
+      "id": "ashcc:railgun_rail",
+      "required": false
+    },
+    {
+      "id": "ashcc:laser_cannon_emitter",
+      "required": false
+    },
+    {
+      "id": "ashcc:laser_cannon_lens",
+      "required": false
+    },
+    "ashcc:jet_intake",
+    "ashcc:jet_core",
+    "ashcc:jet_nozzle",
+    "ashcc:jet_afterburner_nozzle"
+  ]
+}

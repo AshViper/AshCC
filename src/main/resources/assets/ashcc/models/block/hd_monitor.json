@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "ashcc:block/hd_monitor_front",
+    "side": "ashcc:block/hd_monitor_side",
+    "top": "ashcc:block/hd_monitor_side",
+    "particle": "ashcc:block/hd_monitor_side"
+  }
+}

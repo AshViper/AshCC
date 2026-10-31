@@ -1,0 +1,200 @@
+{
+  "variants": {
+    "facing=north,hologram=false,rotation=north": {
+      "model": "ashcc:block/hd_monitor"
+    },
+    "facing=north,hologram=true,rotation=north": {
+      "model": "ashcc:block/hd_monitor_hologram"
+    },
+    "facing=north,hologram=false,rotation=east": {
+      "model": "ashcc:block/hd_monitor"
+    },
+    "facing=north,hologram=true,rotation=east": {
+      "model": "ashcc:block/hd_monitor_hologram"
+    },
+    "facing=north,hologram=false,rotation=south": {
+      "model": "ashcc:block/hd_monitor"
+    },
+    "facing=north,hologram=true,rotation=south": {
+      "model": "ashcc:block/hd_monitor_hologram"
+    },
+    "facing=north,hologram=false,rotation=west": {
+      "model": "ashcc:block/hd_monitor"
+    },
+    "facing=north,hologram=true,rotation=west": {
+      "model": "ashcc:block/hd_monitor_hologram"
+    },
+    "facing=east,hologram=false,rotation=north": {
+      "model": "ashcc:block/hd_monitor",
+      "y": 90
+    },
+    "facing=east,hologram=true,rotation=north": {
+      "model": "ashcc:block/hd_monitor_hologram",
+      "y": 90
+    },
+    "facing=east,hologram=false,rotation=east": {
+      "model": "ashcc:block/hd_monitor",
+      "y": 90
+    },
+    "facing=east,hologram=true,rotation=east": {
+      "model": "ashcc:block/hd_monitor_hologram",
+      "y": 90
+    },
+    "facing=east,hologram=false,rotation=south": {
+      "model": "ashcc:block/hd_monitor",
+      "y": 90
+    },
+    "facing=east,hologram=true,rotation=south": {
+      "model": "ashcc:block/hd_monitor_hologram",
+      "y": 90
+    },
+    "facing=east,hologram=false,rotation=west": {
+      "model": "ashcc:block/hd_monitor",
+      "y": 90
+    },
+    "facing=east,hologram=true,rotation=west": {
+      "model": "ashcc:block/hd_monitor_hologram",
+      "y": 90
+    },
+    "facing=south,hologram=false,rotation=north": {
+      "model": "ashcc:block/hd_monitor",
+      "y": 180
+    },
+    "facing=south,hologram=true,rotation=north": {
+      "model": "ashcc:block/hd_monitor_hologram",
+      "y": 180
+    },
+    "facing=south,hologram=false,rotation=east": {
+      "model": "ashcc:block/hd_monitor",
+      "y": 180
+    },
+    "facing=south,hologram=true,rotation=east": {
+      "model": "ashcc:block/hd_monitor_hologram",
+      "y": 180
+    },
+    "facing=south,hologram=false,rotation=south": {
+      "model": "ashcc:block/hd_monitor",
+      "y": 180
+    },
+    "facing=south,hologram=true,rotation=south": {
+      "model": "ashcc:block/hd_monitor_hologram",
+      "y": 180
+    },
+    "facing=south,hologram=false,rotation=west": {
+      "model": "ashcc:block/hd_monitor",
+      "y": 180
+    },
+    "facing=south,hologram=true,rotation=west": {
+      "model": "ashcc:block/hd_monitor_hologram",
+      "y": 180
+    },
+    "facing=west,hologram=false,rotation=north": {
+      "model": "ashcc:block/hd_monitor",
+      "y": 270
+    },
+    "facing=west,hologram=true,rotation=north": {
+      "model": "ashcc:block/hd_monitor_hologram",
+      "y": 270
+    },
+    "facing=west,hologram=false,rotation=east": {
+      "model": "ashcc:block/hd_monitor",
+      "y": 270
+    },
+    "facing=west,hologram=true,rotation=east": {
+      "model": "ashcc:block/hd_monitor_hologram",
+      "y": 270
+    },
+    "facing=west,hologram=false,rotation=south": {
+      "model": "ashcc:block/hd_monitor",
+      "y": 270
+    },
+    "facing=west,hologram=true,rotation=south": {
+      "model": "ashcc:block/hd_monitor_hologram",
+      "y": 270
+    },
+    "facing=west,hologram=false,rotation=west": {
+      "model": "ashcc:block/hd_monitor",
+      "y": 270
+    },
+    "facing=west,hologram=true,rotation=west": {
+      "model": "ashcc:block/hd_monitor_hologram",
+      "y": 270
+    },
+    "facing=up,hologram=false,rotation=north": {
+      "model": "ashcc:block/hd_monitor",
+      "x": 270,
+      "y": 180
+    },
+    "facing=up,hologram=true,rotation=north": {
+      "model": "ashcc:block/hd_monitor_hologram",
+      "x": 270,
+      "y": 180
+    },
+    "facing=up,hologram=false,rotation=east": {
+      "model": "ashcc:block/hd_monitor",
+      "x": 270,
+      "y": 270
+    },
+    "facing=up,hologram=true,rotation=east": {
+      "model": "ashcc:block/hd_monitor_hologram",
+      "x": 270,
+      "y": 270
+    },
+    "facing=up,hologram=false,rotation=south": {
+      "model": "ashcc:block/hd_monitor",
+      "x": 270
+    },
+    "facing=up,hologram=true,rotation=south": {
+      "model": "ashcc:block/hd_monitor_hologram",
+      "x": 270
+    },
+    "facing=up,hologram=false,rotation=west": {
+      "model": "ashcc:block/hd_monitor",
+      "x": 270,
+      "y": 90
+    },
+    "facing=up,hologram=true,rotation=west": {
+      "model": "ashcc:block/hd_monitor_hologram",
+      "x": 270,
+      "y": 90
+    },
+    "facing=down,hologram=false,rotation=north": {
+      "model": "ashcc:block/hd_monitor",
+      "x": 90
+    },
+    "facing=down,hologram=true,rotation=north": {
+      "model": "ashcc:block/hd_monitor_hologram",
+      "x": 90
+    },
+    "facing=down,hologram=false,rotation=east": {
+      "model": "ashcc:block/hd_monitor",
+      "x": 90,
+      "y": 90
+    },
+    "facing=down,hologram=true,rotation=east": {
+      "model": "ashcc:block/hd_monitor_hologram",
+      "x": 90,
+      "y": 90
+    },
+    "facing=down,hologram=false,rotation=south": {
+      "model": "ashcc:block/hd_monitor",
+      "x": 90,
+      "y": 180
+    },
+    "facing=down,hologram=true,rotation=south": {
+      "model": "ashcc:block/hd_monitor_hologram",
+      "x": 90,
+      "y": 180
+    },
+    "facing=down,hologram=false,rotation=west": {
+      "model": "ashcc:block/hd_monitor",
+      "x": 90,
+      "y": 270
+    },
+    "facing=down,hologram=true,rotation=west": {
+      "model": "ashcc:block/hd_monitor_hologram",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

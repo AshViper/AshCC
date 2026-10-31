@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "ashcc:block/rotary_autocannon_barrel"
+    },
+    "facing=east": {
+      "model": "ashcc:block/rotary_autocannon_barrel",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "ashcc:block/rotary_autocannon_barrel",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "ashcc:block/rotary_autocannon_barrel",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "ashcc:block/rotary_autocannon_barrel",
+      "x": 270
+    },
+    "facing=down": {
+      "model": "ashcc:block/rotary_autocannon_barrel",
+      "x": 90
+    }
+  }
+}

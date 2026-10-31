@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "ashcc:block/railgun_breech_side",
+    "north": "ashcc:block/railgun_breech_front",
+    "south": "ashcc:block/railgun_breech_back",
+    "east": "ashcc:block/railgun_breech_side",
+    "west": "ashcc:block/railgun_breech_side",
+    "up": "ashcc:block/railgun_breech_side",
+    "down": "ashcc:block/railgun_breech_side"
+  }
+}
