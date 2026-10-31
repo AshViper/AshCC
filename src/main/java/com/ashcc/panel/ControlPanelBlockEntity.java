@@ -183,11 +183,16 @@ public class ControlPanelBlockEntity extends BlockEntity implements MonitorHost,
         changed();
     }
 
+    /** Configures a cell with a canvas display (see the overload taking a display mode). */
+    public boolean configure(int col, int row, @Nullable PanelControl.Type type, int width, int height, int channel, DyeColor color) {
+        return configure(col, row, type, width, height, channel, color, PanelControl.MODE_CANVAS);
+    }
+
     /**
      * Puts a control at (col,row), replacing the one there; type null removes it.
      * @return false when it would overlap another control
      */
-    public boolean configure(int col, int row, @Nullable PanelControl.Type type, int width, int height, int channel, DyeColor color) {
+    public boolean configure(int col, int row, @Nullable PanelControl.Type type, int width, int height, int channel, DyeColor color, int mode) {
         int old = indexAt(col, row);
         int anchorCol = old >= 0 ? controls.get(old).col : col, anchorRow = old >= 0 ? controls.get(old).row : row;
         if (type == null) {
@@ -196,6 +201,7 @@ public class ControlPanelBlockEntity extends BlockEntity implements MonitorHost,
             return true;
         }
         PanelControl c = new PanelControl(type, anchorCol, anchorRow, width, height, channel, color, grid);
+        c.mode = mode == PanelControl.MODE_INSTRUMENTS ? PanelControl.MODE_INSTRUMENTS : PanelControl.MODE_CANVAS;
         for (int i = 0; i < controls.size(); i++) {
             if (i != old && controls.get(i).overlaps(c)) return false;
         }
@@ -329,6 +335,7 @@ public class ControlPanelBlockEntity extends BlockEntity implements MonitorHost,
         }
         if (be.screen != null && !be.screen.disposed()) be.screen.tick();
         else if (be.hasDisplay()) be.screen();
+        if (level.getGameTime() % 4 == 0) PanelInstruments.refresh(be);
         if (be.dirty) {
             be.dirty = false;
             be.publish(level, pos, state);

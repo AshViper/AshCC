@@ -111,6 +111,15 @@ public final class MonitorScreen {
         outgoing.writeBytes(ops, ops.readerIndex(), ops.readableBytes());
     }
 
+    /** Applies drawing operations made by the mod itself (built-in displays); these always present right away. */
+    public void drawBuiltIn(ByteBuf ops) {
+        if (disposed) return;
+        synchronized (lock) {
+            canvas.apply(ops.duplicate());
+            queue(ops);
+        }
+    }
+
     void present() throws LuaException {
         checkValid();
         synchronized (lock) {

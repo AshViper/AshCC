@@ -27,7 +27,7 @@ public final class PanelControl {
         STICK(10, true),
         /** Throttle lever: moves like a slider, plus two thumb buttons. Channels: throttle, button 1, button 2. */
         THROTTLE(3, true),
-        /** Shows its part of the panel's canvas (drawn from CC): an MFD. No output. */
+        /** Shows its part of the panel's canvas (drawn from CC), or the built-in instruments in MODE_INSTRUMENTS: an MFD. No output. */
         SCREEN(0, false),
         /** A see-through glass standing up from the panel, showing its part of the canvas: a HUD. No output. */
         HUD(0, false);
@@ -58,12 +58,19 @@ public final class PanelControl {
     /** Bits of a grabbed control's buttons (see {@link ControlPanelBlockEntity#input}). */
     public static final int TRIGGER = 1, BUTTON2 = 2, HAT_UP = 4, HAT_DOWN = 8, HAT_LEFT = 16, HAT_RIGHT = 32, THUMB1 = 64, THUMB2 = 128;
 
+    /** Display modes of a screen: shows the panel's canvas, drawn from CC. */
+    public static final int MODE_CANVAS = 0;
+    /** Display modes of a screen: the panel draws its built-in flight instruments, no computer needed. */
+    public static final int MODE_INSTRUMENTS = 1;
+
     public static final int MAX_CHANNEL = 64;
 
     public final Type type;
     public final int col, row, width, height;
     public final int channel;
     public final DyeColor color;
+    /** What a display control shows ({@link #MODE_CANVAS} or {@link #MODE_INSTRUMENTS}); meaningless for other types. */
+    public int mode = MODE_CANVAS;
 
     // State
     /** Button pressed / toggle on. */
@@ -92,6 +99,7 @@ public final class PanelControl {
         PanelControl p = new PanelControl(type, c, r, w, h, channel, color, grid);
         p.on = on;
         p.value = value;
+        p.mode = mode;
         return p;
     }
 
@@ -132,6 +140,7 @@ public final class PanelControl {
         t.putByte("H", (byte) height);
         t.putByte("Channel", (byte) channel);
         t.putByte("Color", (byte) color.getId());
+        t.putByte("Mode", (byte) mode);
         if (withState) {
             t.putBoolean("On", on);
             t.putDouble("Value", value);
@@ -145,6 +154,7 @@ public final class PanelControl {
     public static PanelControl load(CompoundTag t, int grid) {
         PanelControl c = new PanelControl(Type.byId(t.getString("Type")), t.getByte("Col"), t.getByte("Row"), t.getByte("W"), t.getByte("H"),
             t.getByte("Channel"), DyeColor.byId(t.getByte("Color")), grid);
+        c.mode = t.getByte("Mode") == MODE_INSTRUMENTS ? MODE_INSTRUMENTS : MODE_CANVAS;
         c.on = t.getBoolean("On");
         c.value = Mth.clamp(t.getDouble("Value"), 0, 1);
         c.x = Mth.clamp(t.getDouble("X"), -1, 1);

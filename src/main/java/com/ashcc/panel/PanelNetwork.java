@@ -18,14 +18,14 @@ public final class PanelNetwork {
     private PanelNetwork() {
     }
 
-    /** kind "" removes the control at (col,row). */
-    public record Configure(BlockPos pos, int col, int row, String kind, int width, int height, int channel, int color) implements CustomPacketPayload {
+    /** kind "" removes the control at (col,row). mode is a display mode of {@link PanelControl} (screens only). */
+    public record Configure(BlockPos pos, int col, int row, String kind, int width, int height, int channel, int color, int mode) implements CustomPacketPayload {
         public static final Type<Configure> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(AshCC.MOD_ID, "panel_configure"));
         public static final StreamCodec<ByteBuf, Configure> CODEC = new StreamCodec<>() {
             @Override
             public Configure decode(ByteBuf buf) {
                 return new Configure(BlockPos.STREAM_CODEC.decode(buf), buf.readByte(), buf.readByte(), ByteBufCodecs.STRING_UTF8.decode(buf),
-                    buf.readByte(), buf.readByte(), buf.readByte(), buf.readByte());
+                    buf.readByte(), buf.readByte(), buf.readByte(), buf.readByte(), buf.readByte());
             }
 
             @Override
@@ -33,7 +33,7 @@ public final class PanelNetwork {
                 BlockPos.STREAM_CODEC.encode(buf, c.pos);
                 buf.writeByte(c.col).writeByte(c.row);
                 ByteBufCodecs.STRING_UTF8.encode(buf, c.kind);
-                buf.writeByte(c.width).writeByte(c.height).writeByte(c.channel).writeByte(c.color);
+                buf.writeByte(c.width).writeByte(c.height).writeByte(c.channel).writeByte(c.color).writeByte(c.mode);
             }
         };
 
@@ -109,7 +109,7 @@ public final class PanelNetwork {
         ControlPanelBlockEntity be = panel(ctx, c.pos());
         if (be == null || c.col() < 0 || c.col() >= be.grid() || c.row() < 0 || c.row() >= be.grid()) return;
         PanelControl.Type type = c.kind().isEmpty() ? null : PanelControl.Type.byId(c.kind());
-        be.configure(c.col(), c.row(), type, c.width(), c.height(), c.channel(), DyeColor.byId(c.color()));
+        be.configure(c.col(), c.row(), type, c.width(), c.height(), c.channel(), DyeColor.byId(c.color()), c.mode());
     }
 
     private static void onHold(Hold h, IPayloadContext ctx) {

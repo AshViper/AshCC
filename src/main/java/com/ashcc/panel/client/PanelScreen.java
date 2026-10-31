@@ -21,6 +21,7 @@ public class PanelScreen extends Screen {
     private final int col, row;
     private @Nullable PanelControl.Type type;
     private int cellsWide = 1, cellsHigh = 1, channel = 1;
+    private int mode = PanelControl.MODE_CANVAS;
     private DyeColor color = DyeColor.RED;
     private int anchorCol, anchorRow;
     private int grid = 4, tilt;
@@ -44,6 +45,7 @@ public class PanelScreen extends Screen {
                 cellsHigh = c.height;
                 channel = c.channel;
                 color = c.color;
+                mode = c.mode;
                 anchorCol = c.col;
                 anchorRow = c.row;
             } else {
@@ -95,6 +97,12 @@ public class PanelScreen extends Screen {
                     : Component.translatable("screen.ashcc.panel.channel", channel);
                 stepper(cx, y, ch, () -> channel = Math.max(1, channel - 1),
                     () -> channel = Math.min(PanelControl.MAX_CHANNEL - type.channels + 1, channel + 1));
+            } else if (type == PanelControl.Type.SCREEN) {
+                addRenderableWidget(Button.builder(Component.translatable("screen.ashcc.panel.mode",
+                    Component.translatable(mode == PanelControl.MODE_INSTRUMENTS ? "screen.ashcc.panel.mode.instruments" : "screen.ashcc.panel.mode.canvas")), b -> {
+                    mode = mode == PanelControl.MODE_INSTRUMENTS ? PanelControl.MODE_CANVAS : PanelControl.MODE_INSTRUMENTS;
+                    rebuild();
+                }).bounds(cx, y, 200, 20).build());
             } else {
                 addRenderableWidget(Button.builder(Component.translatable("screen.ashcc.panel.canvas"), b -> {
                 }).bounds(cx, y, 200, 20).build()).active = false;
@@ -146,7 +154,7 @@ public class PanelScreen extends Screen {
         PacketDistributor.sendToServer(new PanelNetwork.Layout(pos, grid, tilt));
         // A changed grid rescales the controls first; the cell then refers to the new grid
         if (grid != originalGrid()) return;
-        PacketDistributor.sendToServer(new PanelNetwork.Configure(pos, col, row, type == null ? "" : type.id(), cellsWide, cellsHigh, channel, color.getId()));
+        PacketDistributor.sendToServer(new PanelNetwork.Configure(pos, col, row, type == null ? "" : type.id(), cellsWide, cellsHigh, channel, color.getId(), mode));
     }
 
     private int originalGrid() {
