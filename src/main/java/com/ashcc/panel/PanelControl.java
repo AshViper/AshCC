@@ -62,6 +62,25 @@ public final class PanelControl {
     public static final int MODE_CANVAS = 0;
     /** Display modes of a screen: the panel draws its built-in flight instruments, no computer needed. */
     public static final int MODE_INSTRUMENTS = 1;
+    /** Display modes of a screen: the panel draws a built-in B-scope radar. */
+    public static final int MODE_RADAR = 2;
+    /** Display modes of a screen: the panel draws a built-in top view of the ship it is mounted on. */
+    public static final int MODE_SHIP = 3;
+    /** Display modes of a screen: the panel lists the ship's weapons and their state. */
+    public static final int MODE_WEAPONS = 4;
+    /** Highest display mode (for clamping and for cycling in the setup screen). */
+    public static final int MODE_MAX = MODE_WEAPONS;
+
+    /** Short id of a display mode, for CC's getControls() and the language files. */
+    public static String modeName(int mode) {
+        return switch (mode) {
+            case MODE_INSTRUMENTS -> "instruments";
+            case MODE_RADAR -> "radar";
+            case MODE_SHIP -> "ship";
+            case MODE_WEAPONS -> "weapons";
+            default -> "canvas";
+        };
+    }
 
     public static final int MAX_CHANNEL = 64;
 
@@ -154,7 +173,8 @@ public final class PanelControl {
     public static PanelControl load(CompoundTag t, int grid) {
         PanelControl c = new PanelControl(Type.byId(t.getString("Type")), t.getByte("Col"), t.getByte("Row"), t.getByte("W"), t.getByte("H"),
             t.getByte("Channel"), DyeColor.byId(t.getByte("Color")), grid);
-        c.mode = t.getByte("Mode") == MODE_INSTRUMENTS ? MODE_INSTRUMENTS : MODE_CANVAS;
+        int m = t.getByte("Mode");
+        c.mode = m >= MODE_CANVAS && m <= MODE_MAX ? m : MODE_CANVAS;
         c.on = t.getBoolean("On");
         c.value = Mth.clamp(t.getDouble("Value"), 0, 1);
         c.x = Mth.clamp(t.getDouble("X"), -1, 1);

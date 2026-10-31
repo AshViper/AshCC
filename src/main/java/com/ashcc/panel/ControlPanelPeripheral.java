@@ -106,7 +106,7 @@ public class ControlPanelPeripheral extends HdMonitorPeripheral {
                 m.put("py", r[1]);
                 m.put("pw", r[2]);
                 m.put("ph", r[3]);
-                m.put("mode", c.mode == PanelControl.MODE_INSTRUMENTS ? "instruments" : "canvas");
+                m.put("mode", PanelControl.modeName(c.mode));
             }
             out.add(m);
         }

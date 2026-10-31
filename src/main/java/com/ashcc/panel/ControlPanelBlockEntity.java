@@ -201,7 +201,7 @@ public class ControlPanelBlockEntity extends BlockEntity implements MonitorHost,
             return true;
         }
         PanelControl c = new PanelControl(type, anchorCol, anchorRow, width, height, channel, color, grid);
-        c.mode = mode == PanelControl.MODE_INSTRUMENTS ? PanelControl.MODE_INSTRUMENTS : PanelControl.MODE_CANVAS;
+        c.mode = mode >= PanelControl.MODE_CANVAS && mode <= PanelControl.MODE_MAX ? mode : PanelControl.MODE_CANVAS;
         for (int i = 0; i < controls.size(); i++) {
             if (i != old && controls.get(i).overlaps(c)) return false;
         }
@@ -335,7 +335,10 @@ public class ControlPanelBlockEntity extends BlockEntity implements MonitorHost,
         }
         if (be.screen != null && !be.screen.disposed()) be.screen.tick();
         else if (be.hasDisplay()) be.screen();
-        if (level.getGameTime() % 4 == 0) PanelInstruments.refresh(be);
+        if (level.getGameTime() % 4 == 0) {
+            PanelInstruments.refresh(be);
+            PanelPages.refresh(be);
+        }
         if (be.dirty) {
             be.dirty = false;
             be.publish(level, pos, state);

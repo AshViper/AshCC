@@ -99,8 +99,8 @@ public class PanelScreen extends Screen {
                     () -> channel = Math.min(PanelControl.MAX_CHANNEL - type.channels + 1, channel + 1));
             } else if (type == PanelControl.Type.SCREEN) {
                 addRenderableWidget(Button.builder(Component.translatable("screen.ashcc.panel.mode",
-                    Component.translatable(mode == PanelControl.MODE_INSTRUMENTS ? "screen.ashcc.panel.mode.instruments" : "screen.ashcc.panel.mode.canvas")), b -> {
-                    mode = mode == PanelControl.MODE_INSTRUMENTS ? PanelControl.MODE_CANVAS : PanelControl.MODE_INSTRUMENTS;
+                    Component.translatable("screen.ashcc.panel.mode." + PanelControl.modeName(mode))), b -> {
+                    mode = mode >= PanelControl.MODE_MAX ? PanelControl.MODE_CANVAS : mode + 1;
                     rebuild();
                 }).bounds(cx, y, 200, 20).build());
             } else {

@@ -15,6 +15,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaterniondc;
@@ -23,8 +26,10 @@ import org.joml.Vector3dc;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -147,6 +152,79 @@ public final class SableCompat {
     public static @Nullable Contact self(Level level, BlockPos pos, Vec3 origin) {
         SubLevel sub = Sable.HELPER.getContaining(level, pos);
         return sub == null ? null : contact(sub, origin, 0);
+    }
+
+    /** Every block entity on the sub-level containing {@code pos} (empty off a ship). Walks the plot's chunks. */
+    public static List<BlockEntity> shipBlockEntities(Level level, BlockPos pos) {
+        SubLevel sub = Sable.HELPER.getContaining(level, pos);
+        if (sub == null) return List.of();
+        var plot = sub.getPlot();
+        List<BlockEntity> out = new ArrayList<>();
+        for (int cx = plot.getChunkMin().x; cx <= plot.getChunkMax().x; cx++) {
+            for (int cz = plot.getChunkMin().z; cz <= plot.getChunkMax().z; cz++) {
+                if (level.hasChunk(cx, cz)) out.addAll(level.getChunk(cx, cz).getBlockEntities().values());
+            }
+        }
+        return out;
+    }
+
+    /**
+     * Top-down plan of the sub-level containing {@code pos}: the occupied columns (packed plot x/z) and the centre of
+     * mass in plot coordinates, or null off a ship. Column scans stop at the first solid block, so this costs roughly
+     * one pass over the ship's footprint.
+     */
+    public record ShipPlan(Set<Long> columns, @Nullable Vec3 centerOfMass) {
+    }
+
+    public static @Nullable ShipPlan shipPlan(Level level, BlockPos pos) {
+        SubLevel sub = Sable.HELPER.getContaining(level, pos);
+        if (sub == null) return null;
+        var plot = sub.getPlot();
+        Set<Long> columns = new HashSet<>();
+        for (int cx = plot.getChunkMin().x; cx <= plot.getChunkMax().x; cx++) {
+            for (int cz = plot.getChunkMin().z; cz <= plot.getChunkMax().z; cz++) {
+                if (!level.hasChunk(cx, cz)) continue;
+                LevelChunk chunk = level.getChunk(cx, cz);
+                for (LevelChunkSection section : chunk.getSections()) {
+                    if (section.hasOnlyAir()) continue;
+                    int baseX = cx * 16, baseZ = cz * 16;
+                    for (int lx = 0; lx < 16; lx++) {
+                        for (int lz = 0; lz < 16; lz++) {
+                            long key = packColumn(baseX + lx, baseZ + lz);
+                            if (columns.contains(key)) continue;
+                            for (int ly = 0; ly < 16; ly++) {
+                                if (!section.getBlockState(lx, ly, lz).isAir()) {
+                                    columns.add(key);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        Vec3 com = null;
+        if (sub instanceof ServerSubLevel server) {
+            MassData mass = server.getMassTracker();
+            if (mass != null && !mass.isInvalid() && mass.getCenterOfMass() != null) {
+                Vector3dc c = mass.getCenterOfMass();
+                com = new Vec3(c.x(), c.y(), c.z());
+            }
+        }
+        return new ShipPlan(columns, com);
+    }
+
+    /** Packs a plot column (x, z) into one long for {@link ShipPlan#columns}. */
+    public static long packColumn(int x, int z) {
+        return ((long) x << 32) | (z & 0xFFFF_FFFFL);
+    }
+
+    public static int columnX(long packed) {
+        return (int) (packed >> 32);
+    }
+
+    public static int columnZ(long packed) {
+        return (int) packed;
     }
 
     private static Contact contact(SubLevel sub, Vec3 origin, double dist) {

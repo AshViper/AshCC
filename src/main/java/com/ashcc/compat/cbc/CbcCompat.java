@@ -129,6 +129,22 @@ public final class CbcCompat {
     private CbcCompat() {
     }
 
+    /** For the control panel's weapons page: is this block entity one of CBC's cannon mounts? */
+    public static boolean isCannonMount(net.minecraft.world.level.block.entity.BlockEntity be) {
+        return be instanceof rbasamoyai.createbigcannons.cannon_control.cannon_mount.CannonMountBlockEntity
+            || be instanceof rbasamoyai.createbigcannons.cannon_control.fixed_cannon_mount.FixedCannonMountBlockEntity;
+    }
+
+    /**
+     * For the control panel's weapons page: null when the block entity is no cannon mount, "none" when no cannon is
+     * assembled on it, otherwise the mounted cannon's kind ("railgun", "laser_cannon", "big_cannon", ...).
+     */
+    public static @org.jetbrains.annotations.Nullable String cannonStatus(net.minecraft.world.level.block.entity.BlockEntity be) {
+        if (!isCannonMount(be)) return null;
+        var cannon = Mounts.cannon(be);
+        return cannon == null ? "none" : Mounts.typeName(cannon);
+    }
+
     static ResourceLocation id(String path) {
         return ResourceLocation.fromNamespaceAndPath(AshCC.MOD_ID, path);
     }
