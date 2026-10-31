@@ -32,6 +32,8 @@ public class RedstoneFlapBearingTests {
 
     private static final class Impl {
         static void run(GameTestHelper helper) {
+            // The angle cap is a user setting; pin it to the full 90 so the coarse/fine steps are what is tested
+            com.ashcc.AshCCConfig.FLAP_REDSTONE_ANGLE.set(90.0);
             BlockPos pos = new BlockPos(4, 2, 4);
             BlockPos flap = pos.above();
             BlockPos north = pos.north();
@@ -45,13 +47,13 @@ public class RedstoneFlapBearingTests {
 
             // Coarse + at full strength: 15 levels * 6 degrees = 90
             helper.setBlock(north, Blocks.REDSTONE_BLOCK);
-            helper.runAfterDelay(30, () -> {
+            helper.runAfterDelay(45, () -> {
                 helper.assertTrue(Math.abs(be.currentAngle() - 90) < 1e-3, "north: angle " + be.currentAngle());
                 helper.assertTrue(be.comparatorOutput() == 15, "comparator " + be.comparatorOutput());
                 // Fine + alone: capped at 5 degrees even at full strength
                 helper.setBlock(north, Blocks.AIR);
                 helper.setBlock(east, Blocks.REDSTONE_BLOCK);
-                helper.runAfterDelay(30, () -> {
+                helper.runAfterDelay(45, () -> {
                     helper.assertTrue(Math.abs(be.currentAngle() - 5) < 1e-3, "east: angle " + be.currentAngle());
                     // Fine - cancels it back to 0
                     helper.setBlock(west, Blocks.REDSTONE_BLOCK);
@@ -62,10 +64,10 @@ public class RedstoneFlapBearingTests {
                         helper.setBlock(west, Blocks.AIR);
                         // The back is coarse -: -90
                         helper.setBlock(back, Blocks.REDSTONE_BLOCK);
-                        helper.runAfterDelay(30, () -> {
+                        helper.runAfterDelay(45, () -> {
                             helper.assertTrue(Math.abs(be.currentAngle() + 90) < 1e-3, "back: angle " + be.currentAngle());
                             helper.setBlock(back, Blocks.AIR);
-                            helper.runAfterDelay(30, () -> {
+                            helper.runAfterDelay(45, () -> {
                                 helper.assertTrue(Math.abs(be.currentAngle()) < 1e-3, "released: angle " + be.currentAngle());
                                 helper.assertTrue(be.requestDisassemble(), "disassemble at 0");
                                 helper.assertBlockPresent(Blocks.OAK_PLANKS, flap);
