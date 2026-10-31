@@ -142,8 +142,6 @@
   "item.ashcc.offset_connector": "オフセットコネクター",
   "entity.ashcc.offset_connector": "オフセットコネクター",
   "block.ashcc.control_panel": "コントロールパネル",
-  "block.ashcc.cockpit": "コックピット",
-  "block.ashcc.seat": "座席",
   "screen.ashcc.panel": "コントロールパネルの設定",
   "screen.ashcc.panel.cell": "マス 列%s・行%s",
   "screen.ashcc.panel.type": "種類: %s",

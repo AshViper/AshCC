@@ -206,27 +206,9 @@ public final class AshCC {
         return driveByWireLoaded ? new com.ashcc.compat.drivebywire.WiredControlPanelBlock(props) : new ControlPanelBlock(props);
     });
     public static final DeferredItem<BlockItem> CONTROL_PANEL_ITEM = ITEMS.registerSimpleBlockItem(CONTROL_PANEL, new Item.Properties());
-
-    // Cockpit: a control panel with a full factory layout, side consoles and a seat, all in one block (same block entity)
-    public static final DeferredBlock<com.ashcc.panel.CockpitBlock> COCKPIT = BLOCKS.register("cockpit", () -> {
-        BlockBehaviour.Properties props = BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_GRAY).strength(1.5f, 6.0f).sound(SoundType.METAL).noOcclusion();
-        return new com.ashcc.panel.CockpitBlock(props);
-    });
-    public static final DeferredItem<BlockItem> COCKPIT_ITEM = ITEMS.registerSimpleBlockItem(COCKPIT, new Item.Properties());
-
-    // A plain seat, and the invisible entity a rider sits on (shared by the seat block and panels)
-    public static final DeferredBlock<com.ashcc.seat.SeatBlock> SEAT_BLOCK = BLOCKS.register("seat", () -> {
-        BlockBehaviour.Properties props = BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_GRAY).strength(1.0f, 3.0f).sound(SoundType.WOOL).noOcclusion();
-        return new com.ashcc.seat.SeatBlock(props);
-    });
-    public static final DeferredItem<BlockItem> SEAT_ITEM = ITEMS.registerSimpleBlockItem(SEAT_BLOCK, new Item.Properties());
-    public static final DeferredHolder<EntityType<?>, EntityType<com.ashcc.seat.SeatEntity>> SEAT = ENTITIES.register("seat",
-        () -> EntityType.Builder.<com.ashcc.seat.SeatEntity>of(com.ashcc.seat.SeatEntity::new, MobCategory.MISC).sized(0.25f, 0.25f).clientTrackingRange(16).updateInterval(2)
-            .build("seat"));
-
     @SuppressWarnings("DataFlowIssue")
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ControlPanelBlockEntity>> CONTROL_PANEL_BE = BLOCK_ENTITIES.register("control_panel",
-        () -> BlockEntityType.Builder.of(ControlPanelBlockEntity::new, CONTROL_PANEL.get(), COCKPIT.get()).build(null));
+        () -> BlockEntityType.Builder.of(ControlPanelBlockEntity::new, CONTROL_PANEL.get()).build(null));
 
     public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(Registries.SOUND_EVENT, MOD_ID);
     public static final DeferredHolder<SoundEvent, SoundEvent> JET_CORE_SOUND = SOUNDS.register("jet_engine.core",
@@ -281,8 +263,6 @@ public final class AshCC {
             output.accept(THRUSTER_ITEM);
             output.accept(ANTIGRAV_ITEM);
             output.accept(CONTROL_PANEL_ITEM);
-            output.accept(COCKPIT_ITEM);
-            output.accept(SEAT_ITEM);
             JET_ITEMS.forEach(output::accept);
             output.accept(HOSE);
             output.accept(PIPE);
