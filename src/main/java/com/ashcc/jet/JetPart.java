@@ -8,7 +8,8 @@ public enum JetPart {
     INTAKE("intake"),
     CORE("core"),
     NOZZLE("nozzle"),
-    AFTERBURNER_NOZZLE("afterburner_nozzle");
+    AFTERBURNER_NOZZLE("afterburner_nozzle"),
+    VECTORING_NOZZLE("vectoring_nozzle");
 
     private final String name;
 
@@ -21,6 +22,6 @@ public enum JetPart {
     }
 
     public boolean isNozzle() {
-        return this == NOZZLE || this == AFTERBURNER_NOZZLE;
+        return this == NOZZLE || this == AFTERBURNER_NOZZLE || this == VECTORING_NOZZLE;
     }
 }

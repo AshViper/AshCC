@@ -11,6 +11,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -58,6 +59,25 @@ public class JetEngineTests {
                     helper.assertBlockProperty(new BlockPos(1, 2, 4), JetPartBlock.FORMED, false);
                     helper.succeed();
                 });
+            });
+        });
+    }
+
+    /** A vectoring nozzle deflects the exhaust (pitch + tilts it up); commands clamp to the configured maximum. */
+    @GameTest(template = RadarTests.EMPTY, timeoutTicks = 200)
+    public static void vectoringNozzle(GameTestHelper helper) {
+        JetEngineBlockEntity e = build(helper, List.of(AshCC.JET_INTAKE.get(), AshCC.JET_CORE.get(), AshCC.JET_VECTORING_NOZZLE.get()));
+        helper.runAfterDelay(25, () -> {
+            helper.assertTrue(e.formed(), "engine formed");
+            helper.assertTrue(e.hasVectoring(), "vectoring nozzle");
+            helper.assertTrue(Boolean.TRUE.equals(e.peripheral().getStructure().get("vectoring")), "structure reports vectoring");
+            helper.assertTrue(e.setNozzleVector(45, 0), "set vector");
+            helper.assertTrue(e.vectorPitchCommand() == 15, "clamped to max: " + e.vectorPitchCommand());
+            helper.runAfterDelay(10, () -> {
+                Vec3 dir = e.exhaustDir();
+                helper.assertTrue(dir.y > 0.2 && dir.y < 0.32, "exhaust tilts up: " + dir);
+                helper.assertTrue(dir.x > 0.93, "mostly forward: " + dir);
+                helper.succeed();
             });
         });
     }

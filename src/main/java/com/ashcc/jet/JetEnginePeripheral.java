@@ -183,10 +183,33 @@ public class JetEnginePeripheral implements IPeripheral {
         t.put("valid", engine.formed());
         if (!engine.formed()) t.put("error", engine.structureError());
         t.put("afterburner", engine.hasAfterburner());
+        t.put("vectoring", engine.hasVectoring());
         t.put("length", engine.length());
         t.put("pressureRatio", engine.pressureRatio());
         t.put("maxDryThrust", engine.maxDryThrust());
         t.put("maxWetThrust", engine.maxWetThrust());
+        return t;
+    }
+
+    /**
+     * setNozzleVector(pitch, yaw): deflects a vectoring nozzle in degrees (pitch + points the exhaust up,
+     * yaw + points it right), clamped to the configured maximum. Returns false when the nozzle cannot vector.
+     */
+    @LuaFunction(mainThread = true)
+    public final boolean setNozzleVector(double pitch, double yaw) throws LuaException {
+        return engine.setNozzleVector(finite(pitch, "pitch"), finite(yaw, "yaw"));
+    }
+
+    /** Nozzle vectoring: vectoring (the nozzle can vector), pitch/yaw (current deflection, degrees), maxAngle. */
+    @LuaFunction(mainThread = true)
+    public final Map<String, Object> getNozzleVector() {
+        Map<String, Object> t = new HashMap<>();
+        t.put("vectoring", engine.hasVectoring());
+        t.put("pitch", engine.vectorPitch());
+        t.put("yaw", engine.vectorYaw());
+        t.put("pitchCommand", engine.vectorPitchCommand());
+        t.put("yawCommand", engine.vectorYawCommand());
+        t.put("maxAngle", AshCCConfig.JET_VECTOR_MAX_ANGLE.get());
         return t;
     }
 

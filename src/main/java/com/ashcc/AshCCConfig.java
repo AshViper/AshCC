@@ -19,6 +19,7 @@ public final class AshCCConfig {
     public static final ModConfigSpec.ConfigValue<java.util.List<? extends String>> JET_FUELS;
     public static final ModConfigSpec.DoubleValue JET_EGT_LIMIT;
     public static final ModConfigSpec.DoubleValue JET_SPOOL_SECONDS;
+    public static final ModConfigSpec.DoubleValue JET_VECTOR_MAX_ANGLE;
     public static final ModConfigSpec.DoubleValue JET_DENSITY_SCALE_HEIGHT;
     public static final ModConfigSpec.BooleanValue JET_INGESTION;
     public static final ModConfigSpec.BooleanValue JET_BLAST;
@@ -151,6 +152,8 @@ public final class AshCCConfig {
             .defineInRange("egtLimit", 900.0, 100.0, 5000.0);
         JET_SPOOL_SECONDS = b.comment("Time constant of the core spool (seconds)")
             .defineInRange("spoolSeconds", 1.6, 0.05, 60.0);
+        JET_VECTOR_MAX_ANGLE = b.comment("Largest deflection of a vectoring nozzle, in degrees (pitch and yaw each)")
+            .defineInRange("vectorMaxAngle", 15.0, 0.0, 30.0);
         JET_DENSITY_SCALE_HEIGHT = b.comment("Height above sea level (Y 63) where air density and thrust drop to 1/e (blocks)")
             .defineInRange("densityScaleHeight", 800.0, 1.0, 1.0e6);
         JET_INGESTION = b.comment("Running intakes suck in and hurt entities in front of them (and are damaged by it)").define("ingestion", true);

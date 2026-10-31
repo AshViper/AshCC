@@ -1,0 +1,1 @@
+{"category":"redstone","key":{"I":{"item":"minecraft:iron_ingot"},"N":{"item":"ashcc:jet_nozzle"},"P":{"item":"minecraft:piston"},"R":{"item":"minecraft:redstone"}},"pattern":["IPI","RNR","IPI"],"result":{"count":1,"id":"ashcc:jet_vectoring_nozzle"},"type":"minecraft:crafting_shaped"}

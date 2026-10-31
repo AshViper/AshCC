@@ -71,6 +71,7 @@
   "block.ashcc.jet_intake": "ジェットエンジン吸気口",
   "block.ashcc.jet_core": "ジェットエンジンコア",
   "block.ashcc.jet_nozzle": "ジェットエンジンノズル",
+  "block.ashcc.jet_vectoring_nozzle": "ジェットエンジン偏向ノズル",
   "block.ashcc.jet_afterburner_nozzle": "アフターバーナー付きノズル",
   "ashcc.goggles.jet.title": "ジェットエンジン",
   "ashcc.goggles.jet.title_ab": "ジェットエンジン（アフターバーナー付き）",

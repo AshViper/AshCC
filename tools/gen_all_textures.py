@@ -565,6 +565,20 @@ def jet_afterburner_nozzle_side():
     return im
 
 
+def jet_vectoring_nozzle_side():
+    im = jet_section()
+    d = ImageDraw.Draw(im)
+    # Gimbal rings: two bright bands the nozzle pivots between
+    d.rectangle([0, 3, 15, 5], fill=PANEL_D + (255,))
+    d.line([(0, 3), (15, 3)], fill=HI + (255,))
+    d.rectangle([0, 10, 15, 12], fill=PANEL_D + (255,))
+    d.line([(0, 10), (15, 10)], fill=HI + (255,))
+    for x in (2, 8, 13):
+        d.point((x, 4), fill=AMBER + (255,))
+        d.point((x, 11), fill=AMBER + (255,))
+    return im
+
+
 def jet_section_end():
     im = canvas("jet_section_end", PANEL_D)
     bevel(im)
@@ -888,6 +902,7 @@ def main():
     save(jet_intake_side(), b + "jet_intake_side.png")
     save(jet_nozzle_side(), b + "jet_nozzle_side.png")
     save(jet_afterburner_nozzle_side(), b + "jet_afterburner_nozzle_side.png")
+    save(jet_vectoring_nozzle_side(), b + "jet_vectoring_nozzle_side.png")
     save(jet_section_end(), b + "jet_section_end.png")
     save(jet_interior(), b + "jet_interior.png")
     save(jet_fan_blade(), b + "jet_fan_blade.png")

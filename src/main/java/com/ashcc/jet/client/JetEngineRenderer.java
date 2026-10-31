@@ -79,6 +79,11 @@ public class JetEngineRenderer implements BlockEntityRenderer<JetEngineBlockEnti
         Matrix4f m = poseStack.last().pose();
         VertexConsumer vc = buffers.getBuffer(JetRenderTypes.EXHAUST);
         Vec3 exit = d.scale(0.505);
+        // A vectoring nozzle bends the plume: it leaves along the deflected direction
+        Vec3 pd = be.clientVectoring() ? JetEngineBlockEntity.deflect(d, be.clientVectorPitch(pt), be.clientVectorYaw(pt)) : d;
+        Vec3 pa = (Math.abs(pd.y) < 0.9 ? pd.cross(new Vec3(0, 1, 0)) : pd.cross(new Vec3(1, 0, 0))).normalize();
+        Vec3 pb = pd.cross(pa).normalize();
+        Vec3 pExit = pd.scale(0.505);
 
         // Glowing turbine face inside the nozzle: black body colour of the exhaust gas
         double heat = Mth.clamp((egt - 180) / 700, 0, 1);
@@ -90,12 +95,12 @@ public class JetEngineRenderer implements BlockEntityRenderer<JetEngineBlockEnti
         }
 
         boolean lit = be.syncedLitClient();
-        if (lit && n1 > 0.02) dryExhaust(vc, m, exit, d, a, b, exitR, n1, ab, time, seed);
-        if (ab > 0.005) afterburner(vc, m, exit, d, a, b, exitR, ab, be.clientAfterburner() ? 2 : 1, time, seed);
+        if (lit && n1 > 0.02) dryExhaust(vc, m, pExit, pd, pa, pb, exitR, n1, ab, time, seed);
+        if (ab > 0.005) afterburner(vc, m, pExit, pd, pa, pb, exitR, ab, be.clientAfterburner() ? 2 : 1, time, seed);
         if (flash > 0.02) {
             // Light-off of the reheat: a short bright ball of flame at the nozzle
             double fl = flash;
-            tube(vc, m, exit, d, a, b, 0.9 + 0.6 * (1 - fl), 10, 12, new Shell() {
+            tube(vc, m, pExit, pd, pa, pb, 0.9 + 0.6 * (1 - fl), 10, 12, new Shell() {
                 public double radius(double s, double x) {
                     return exitR * (1.2 + 1.4 * fl) * Math.sqrt(Math.max(0, 1 - s * s)) + 0.02;
                 }

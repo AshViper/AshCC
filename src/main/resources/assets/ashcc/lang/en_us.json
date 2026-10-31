@@ -71,6 +71,7 @@
   "block.ashcc.jet_intake": "Jet Engine Intake",
   "block.ashcc.jet_core": "Jet Engine Core",
   "block.ashcc.jet_nozzle": "Jet Engine Nozzle",
+  "block.ashcc.jet_vectoring_nozzle": "Jet Engine Vectoring Nozzle",
   "block.ashcc.jet_afterburner_nozzle": "Afterburner Nozzle",
   "ashcc.goggles.jet.title": "Jet Engine",
   "ashcc.goggles.jet.title_ab": "Jet Engine (Afterburner)",

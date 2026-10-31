@@ -73,6 +73,7 @@ public class JetEngineBlockEntity extends BlockEntity {
     private boolean formed;
     private String structureError = "unchecked";
     private boolean afterburner;
+    private boolean vectoring;
     private final List<BlockPos> members = new ArrayList<>();
     private @Nullable BlockPos intakePos;
     private int scanTimer;
@@ -81,6 +82,8 @@ public class JetEngineBlockEntity extends BlockEntity {
     // ---- Controls ----
     private double throttleCmd;
     private double afterburnerCmd;
+    private double vectorPitchCmd, vectorYawCmd;
+    private double vectorPitch, vectorYaw;
     private boolean redstoneControl = true;
     private double throttleLimit = 1;
     private int redstoneInput;
@@ -119,12 +122,14 @@ public class JetEngineBlockEntity extends BlockEntity {
 
     // ---- Client copy ----
     private int syncTimer;
-    private double sentN2 = -1, sentEgt = -1, sentAb = -1;
+    private double sentN2 = -1, sentEgt = -1, sentAb = -1, sentVecP, sentVecY;
     private boolean sentLit;
     private EngineState sentState = EngineState.OFF;
     private boolean sentFormed;
     double clientN2, clientEgt = AMBIENT, clientAb;
     double prevN2, prevEgt = AMBIENT, prevAb;
+    double clientVecP, clientVecY, prevVecP, prevVecY;
+    private double syncedVecP, syncedVecY;
     double clientFlash, prevFlash;
     /** Rotor angles (radians) of the fan and the HP turbine, advanced each client tick for the renderer. */
     float fanAngle, prevFanAngle, turbineAngle, prevTurbineAngle;
@@ -306,13 +311,51 @@ public class JetEngineBlockEntity extends BlockEntity {
         return Math.pow(Mth.clamp((n2 - 0.45) / 0.55, 0, 1), 1.2);
     }
 
-    /** Thrust axis: the ship is pushed against the exhaust. Block coordinates. */
+    /** Thrust axis without nozzle deflection: the ship is pushed against the exhaust. Block coordinates. */
     public Vec3 thrustAxis() {
         return Vec3.atLowerCornerOf(exhaust().getOpposite().getNormal());
     }
 
     public Vec3 localForce() {
-        return thrustAxis().scale(thrust);
+        return exhaustDir().scale(-thrust);
+    }
+
+    // ---- Thrust vectoring ----
+
+    public boolean hasVectoring() { return vectoring; }
+    public double vectorPitch() { return vectorPitch; }
+    public double vectorYaw() { return vectorYaw; }
+    public double vectorPitchCommand() { return vectorPitchCmd; }
+    public double vectorYawCommand() { return vectorYawCmd; }
+
+    /** Commands the nozzle deflection in degrees (pitch: exhaust up +, yaw: exhaust right +). False without a vectoring nozzle. */
+    public boolean setNozzleVector(double pitchDeg, double yawDeg) {
+        if (!vectoring) return false;
+        double max = AshCCConfig.JET_VECTOR_MAX_ANGLE.get();
+        vectorPitchCmd = Mth.clamp(pitchDeg, -max, max);
+        vectorYawCmd = Mth.clamp(yawDeg, -max, max);
+        setChanged();
+        return true;
+    }
+
+    /** Exhaust direction with the current vectoring deflection applied (block coordinates). */
+    public Vec3 exhaustDir() {
+        return deflect(Vec3.atLowerCornerOf(exhaust().getNormal()), vectorPitch, vectorYaw);
+    }
+
+    /** Deflects a unit exhaust direction: pitch around the lateral axis (exhaust up for +), then yaw around the up axis (exhaust right for +). */
+    public static Vec3 deflect(Vec3 f, double pitchDeg, double yawDeg) {
+        if (pitchDeg == 0 && yawDeg == 0) return f;
+        Vec3 upRef = Math.abs(f.y) < 0.9 ? new Vec3(0, 1, 0) : new Vec3(1, 0, 0);
+        Vec3 lateral = f.cross(upRef).normalize();
+        Vec3 v = rotate(f, lateral, Math.toRadians(pitchDeg));
+        v = rotate(v, upRef, Math.toRadians(yawDeg));
+        return v.normalize();
+    }
+
+    private static Vec3 rotate(Vec3 v, Vec3 axis, double rad) {
+        double c = Math.cos(rad), s = Math.sin(rad);
+        return v.scale(c).add(axis.cross(v).scale(s)).add(axis.scale(axis.dot(v) * (1 - c)));
     }
 
     // ---- Structure ----
@@ -339,6 +382,7 @@ public class JetEngineBlockEntity extends BlockEntity {
         formed = ok;
         structureError = ok ? "" : error;
         afterburner = ((JetPartBlock) getBlockState().getBlock()).part() == JetPart.AFTERBURNER_NOZZLE;
+        vectoring = ((JetPartBlock) getBlockState().getBlock()).part() == JetPart.VECTORING_NOZZLE;
         intakePos = ok ? intake : null;
         if (wasFormed && !ok && state != EngineState.OFF && state != EngineState.FAILED) {
             lit = false;
@@ -481,6 +525,11 @@ public class JetEngineBlockEntity extends BlockEntity {
                 n2 = approach(n2, 0, 0.5);
             }
         }
+
+        // Vectoring nozzle: the deflection follows its command at a fixed rate
+        double vStep = 120 * DT;
+        vectorPitch += Mth.clamp(vectorPitchCmd - vectorPitch, -vStep, vStep);
+        vectorYaw += Mth.clamp(vectorYawCmd - vectorYaw, -vStep, vStep);
 
         // Afterburner: only at military power. Lights after a short delay, cuts at once.
         double abTarget = 0;
@@ -632,8 +681,9 @@ public class JetEngineBlockEntity extends BlockEntity {
         }
 
         if (AshCCConfig.JET_BLAST.get() && lit) {
-            Vec3 exit = world(Vec3.atCenterOf(worldPosition).add(exLocal.scale(0.5)));
-            Vec3 out = dir(exLocal);
+            Vec3 blastLocal = exhaustDir();
+            Vec3 exit = world(Vec3.atCenterOf(worldPosition).add(blastLocal.scale(0.5)));
+            Vec3 out = dir(blastLocal);
             double len = 2 + 6 * n1 + 8 * abLevel;
             AABB box = new AABB(exit, exit.add(out.scale(len))).inflate(1.2);
             for (Entity e : level.getEntities((Entity) null, box, e -> e.isAlive() && !e.isSpectator())) {
@@ -690,12 +740,15 @@ public class JetEngineBlockEntity extends BlockEntity {
         if (++syncTimer < 2) return;
         // Fast for the visuals; once a second anyway so the goggle readout (fuel, health, ...) stays current
         boolean changed = Math.abs(n2 - sentN2) > 0.004 || Math.abs(egt - sentEgt) > 4 || Math.abs(abLevel - sentAb) > 0.01
+            || Math.abs(vectorPitch - sentVecP) > 0.05 || Math.abs(vectorYaw - sentVecY) > 0.05
             || lit != sentLit || state != sentState || formed != sentFormed || syncTimer >= 20;
         if (!changed) return;
         syncTimer = 0;
         sentN2 = n2;
         sentEgt = egt;
         sentAb = abLevel;
+        sentVecP = vectorPitch;
+        sentVecY = vectorYaw;
         sentLit = lit;
         sentState = state;
         sentFormed = formed;
@@ -707,6 +760,10 @@ public class JetEngineBlockEntity extends BlockEntity {
         prevN2 = clientN2;
         prevEgt = clientEgt;
         prevAb = clientAb;
+        prevVecP = clientVecP;
+        prevVecY = clientVecY;
+        clientVecP += (syncedVecP - clientVecP) * 0.4;
+        clientVecY += (syncedVecY - clientVecY) * 0.4;
         prevFlash = clientFlash;
         if (syncedAb > 0.02 && clientAb <= 0.02) clientFlash = 1;
         clientN2 += (syncedN2 - clientN2) * 0.35;
@@ -723,6 +780,9 @@ public class JetEngineBlockEntity extends BlockEntity {
         com.ashcc.jet.client.JetEngineSound.tick(this);
     }
 
+    public double clientVectorPitch(float pt) { return Mth.lerp(pt, prevVecP, clientVecP); }
+    public double clientVectorYaw(float pt) { return Mth.lerp(pt, prevVecY, clientVecY); }
+    public boolean clientVectoring() { return vectoring; }
     public double clientN2(float pt) { return Mth.lerp(pt, prevN2, clientN2); }
     public double clientEgt(float pt) { return Mth.lerp(pt, prevEgt, clientEgt); }
     public double clientAb(float pt) { return Mth.lerp(pt, prevAb, clientAb); }
@@ -746,6 +806,9 @@ public class JetEngineBlockEntity extends BlockEntity {
         t.putBoolean("Lit", lit);
         t.putBoolean("Formed", formed);
         t.putBoolean("Afterburner", afterburner);
+        t.putBoolean("Vectoring", vectoring);
+        t.putDouble("VecP", vectorPitch);
+        t.putDouble("VecY", vectorYaw);
         t.putString("State", state.name());
         // Instrument readings for the goggles
         t.putDouble("Thrust", thrust);
@@ -770,6 +833,9 @@ public class JetEngineBlockEntity extends BlockEntity {
         syncedLit = t.getBoolean("Lit");
         formed = t.getBoolean("Formed");
         afterburner = t.getBoolean("Afterburner");
+        vectoring = t.getBoolean("Vectoring");
+        syncedVecP = t.getDouble("VecP");
+        syncedVecY = t.getDouble("VecY");
         state = parseState(t.getString("State"));
         n2 = syncedN2;
         egt = syncedEgt;
@@ -812,6 +878,8 @@ public class JetEngineBlockEntity extends BlockEntity {
         clientN2 = prevN2 = syncedN2;
         clientEgt = prevEgt = syncedEgt;
         clientAb = prevAb = syncedAb;
+        clientVecP = prevVecP = syncedVecP;
+        clientVecY = prevVecY = syncedVecY;
     }
 
     @Override
@@ -840,6 +908,10 @@ public class JetEngineBlockEntity extends BlockEntity {
         tag.putDouble("Throttle", throttleCmd);
         tag.putDouble("ThrottleLimit", throttleLimit);
         tag.putDouble("Afterburner", afterburnerCmd);
+        tag.putDouble("VectorPitchCmd", vectorPitchCmd);
+        tag.putDouble("VectorYawCmd", vectorYawCmd);
+        tag.putDouble("VectorPitch", vectorPitch);
+        tag.putDouble("VectorYaw", vectorYaw);
         tag.putBoolean("RedstoneControl", redstoneControl);
         tag.putString("State", state.name());
         tag.putBoolean("Lit", lit);
@@ -855,6 +927,10 @@ public class JetEngineBlockEntity extends BlockEntity {
         throttleCmd = tag.getDouble("Throttle");
         throttleLimit = tag.contains("ThrottleLimit") ? Mth.clamp(tag.getDouble("ThrottleLimit"), 0.1, 1) : 1;
         afterburnerCmd = tag.getDouble("Afterburner");
+        vectorPitchCmd = tag.getDouble("VectorPitchCmd");
+        vectorYawCmd = tag.getDouble("VectorYawCmd");
+        vectorPitch = tag.getDouble("VectorPitch");
+        vectorYaw = tag.getDouble("VectorYaw");
         redstoneControl = !tag.contains("RedstoneControl") || tag.getBoolean("RedstoneControl");
         state = parseState(tag.getString("State"));
         lit = tag.getBoolean("Lit");

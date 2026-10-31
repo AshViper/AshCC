@@ -221,9 +221,11 @@ public final class AshCC {
     public static final DeferredBlock<JetPartBlock> JET_CORE = jetPart(JetPart.CORE);
     public static final DeferredBlock<JetNozzleBlock> JET_NOZZLE = jetNozzle(JetPart.NOZZLE);
     public static final DeferredBlock<JetNozzleBlock> JET_AFTERBURNER_NOZZLE = jetNozzle(JetPart.AFTERBURNER_NOZZLE);
+    public static final DeferredBlock<JetNozzleBlock> JET_VECTORING_NOZZLE = jetNozzle(JetPart.VECTORING_NOZZLE);
     public static final List<DeferredItem<BlockItem>> JET_ITEMS = List.of(
         ITEMS.registerSimpleBlockItem(JET_INTAKE), ITEMS.registerSimpleBlockItem(JET_CORE),
-        ITEMS.registerSimpleBlockItem(JET_NOZZLE), ITEMS.registerSimpleBlockItem(JET_AFTERBURNER_NOZZLE));
+        ITEMS.registerSimpleBlockItem(JET_NOZZLE), ITEMS.registerSimpleBlockItem(JET_AFTERBURNER_NOZZLE),
+        ITEMS.registerSimpleBlockItem(JET_VECTORING_NOZZLE));
     /** With Sable the nozzle's block entity is a Sable actor that pushes the ship. */
     @SuppressWarnings("DataFlowIssue")
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<JetEngineBlockEntity>> JET_ENGINE_BE = BLOCK_ENTITIES.register("jet_engine",
@@ -231,7 +233,7 @@ public final class AshCC {
             (pos, state) -> createLoaded
                 ? (sableLoaded ? new SableGoggleJetEngineBlockEntity(pos, state) : new GoggleJetEngineBlockEntity(pos, state))
                 : (sableLoaded ? SableJetEngineBlockEntity.create(pos, state) : new JetEngineBlockEntity(pos, state)),
-            JET_NOZZLE.get(), JET_AFTERBURNER_NOZZLE.get()).build(null));
+            JET_NOZZLE.get(), JET_AFTERBURNER_NOZZLE.get(), JET_VECTORING_NOZZLE.get()).build(null));
 
     private static DeferredBlock<JetPartBlock> jetPart(JetPart part) {
         return BLOCKS.register("jet_" + part.partName(), () -> {
