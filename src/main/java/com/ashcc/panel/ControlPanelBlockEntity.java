@@ -248,6 +248,11 @@ public class ControlPanelBlockEntity extends BlockEntity implements MonitorHost,
                 c.on = !c.on;
                 sound(c.on ? 0.6f : 0.5f);
             }
+            case SCREEN -> {
+                // Clicking a screen cycles its display: canvas, instruments, radar, ship, weapons
+                c.mode = c.mode >= PanelControl.MODE_MAX ? PanelControl.MODE_CANVAS : c.mode + 1;
+                sound(0.7f);
+            }
             default -> {
             }
         }

@@ -5,6 +5,7 @@ import com.ashcc.panel.ControlPanelBlockEntity;
 import com.ashcc.panel.PanelControl;
 import com.ashcc.panel.PanelFrame;
 import com.ashcc.panel.PanelNetwork;
+import com.ashcc.seat.SeatEntity;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -50,6 +51,8 @@ public final class PanelClient {
 
     /** The stick in the right hand and anything else in the left. */
     private static @Nullable Held stick, other;
+    /** The current holds come from sitting in a panel seat (a cockpit): they end when the player gets up. */
+    private static boolean seatedHold;
     private static int grabTicks;
     private static @Nullable BlockPos buttonPos;
     private static int buttonIndex = -1;
@@ -62,7 +65,10 @@ public final class PanelClient {
     }
 
     public static void register(IEventBus modBus) {
-        modBus.addListener((EntityRenderersEvent.RegisterRenderers e) -> e.registerBlockEntityRenderer(AshCC.CONTROL_PANEL_BE.get(), PanelRenderer::new));
+        modBus.addListener((EntityRenderersEvent.RegisterRenderers e) -> {
+            e.registerBlockEntityRenderer(AshCC.CONTROL_PANEL_BE.get(), PanelRenderer::new);
+            e.registerEntityRenderer(AshCC.SEAT.get(), net.minecraft.client.renderer.entity.NoopRenderer::new);
+        });
         modBus.addListener((RegisterGuiLayersEvent e) ->
             e.registerAbove(VanillaGuiLayers.HOTBAR, ResourceLocation.fromNamespaceAndPath(AshCC.MOD_ID, "panel_grab"), PanelClient::renderHint));
         modBus.addListener((RegisterKeyMappingsEvent e) -> {
@@ -155,6 +161,24 @@ public final class PanelClient {
             stick = other = null;
             buttonPos = null;
             return;
+        }
+        // Sitting in a panel seat (the cockpit) holds its stick and throttle for you
+        boolean seated = false;
+        if (mc.player.getVehicle() instanceof SeatEntity seat && seat.blockPos() != null
+            && mc.level.getBlockEntity(seat.blockPos()) instanceof ControlPanelBlockEntity cbe) {
+            seated = true;
+            if (!seatedHold) {
+                seatedHold = true;
+                for (int i = 0; i < cbe.controls().size(); i++) {
+                    PanelControl c = cbe.controls().get(i);
+                    if (c.type == PanelControl.Type.STICK && stick == null) stick = new Held(seat.blockPos(), i);
+                    if (c.type == PanelControl.Type.THROTTLE && other == null) other = new Held(seat.blockPos(), i);
+                }
+            }
+        }
+        if (!seated && seatedHold) {
+            seatedHold = false;
+            releaseAll();
         }
         if (buttonPos != null) {
             boolean still = mc.options.keyUse.isDown() && mc.hitResult instanceof BlockHitResult hit && hit.getType() == HitResult.Type.BLOCK

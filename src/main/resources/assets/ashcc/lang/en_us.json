@@ -142,6 +142,8 @@
   "item.ashcc.offset_connector": "Offset Connector",
   "entity.ashcc.offset_connector": "Offset Connector",
   "block.ashcc.control_panel": "Control Panel",
+  "block.ashcc.cockpit": "Cockpit",
+  "block.ashcc.seat": "Seat",
   "screen.ashcc.panel": "Control Panel Setup",
   "screen.ashcc.panel.cell": "Cell column %s, row %s",
   "screen.ashcc.panel.type": "Type: %s",
