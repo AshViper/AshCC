@@ -70,7 +70,9 @@ public class JetEngineTests {
         helper.runAfterDelay(25, () -> {
             helper.assertTrue(e.formed(), "engine formed");
             helper.assertTrue(e.hasVectoring(), "vectoring nozzle");
+            helper.assertTrue(e.hasAfterburner(), "vectoring nozzle has an afterburner");
             helper.assertTrue(Boolean.TRUE.equals(e.peripheral().getStructure().get("vectoring")), "structure reports vectoring");
+            helper.assertTrue(Boolean.TRUE.equals(e.peripheral().getStructure().get("afterburner")), "structure reports afterburner");
             helper.assertTrue(e.setNozzleVector(45, 0), "set vector");
             helper.assertTrue(e.vectorPitchCommand() == 15, "clamped to max: " + e.vectorPitchCommand());
             helper.runAfterDelay(10, () -> {

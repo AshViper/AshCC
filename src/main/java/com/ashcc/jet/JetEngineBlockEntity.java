@@ -46,7 +46,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  *   and the starter cuts out at 58%; idle is 62%. No light-off within 15 s (no fuel, blocked intake) aborts the start.</li>
  *   <li>Throttle 0..1 sets N2 between idle and its maximum; N2 follows with a lag that grows with the number of stages.
  *   The fan (N1) and thrust follow N2. Thrust drops with air density (height) and airspeed (ram drag).</li>
- *   <li>Afterburner (afterburner nozzle only): at full throttle and N2 &gt; 93%; extra fuel behind the turbine for +50% thrust.</li>
+ *   <li>Afterburner (afterburner and vectoring nozzles): at full throttle and N2 &gt; 93%; extra fuel behind the turbine for +50% thrust.</li>
  *   <li>EGT rises with power; above the redline the engine takes damage, at 0 health it seizes (repair with iron ingots).</li>
  *   <li>Fuel starvation, a blocked or flooded intake, or too thin air put the flame out.</li>
  * </ul>
@@ -381,8 +381,9 @@ public class JetEngineBlockEntity extends BlockEntity {
         boolean wasFormed = formed;
         formed = ok;
         structureError = ok ? "" : error;
-        afterburner = ((JetPartBlock) getBlockState().getBlock()).part() == JetPart.AFTERBURNER_NOZZLE;
-        vectoring = ((JetPartBlock) getBlockState().getBlock()).part() == JetPart.VECTORING_NOZZLE;
+        JetPart part = ((JetPartBlock) getBlockState().getBlock()).part();
+        afterburner = part == JetPart.AFTERBURNER_NOZZLE || part == JetPart.VECTORING_NOZZLE;
+        vectoring = part == JetPart.VECTORING_NOZZLE;
         intakePos = ok ? intake : null;
         if (wasFormed && !ok && state != EngineState.OFF && state != EngineState.FAILED) {
             lit = false;

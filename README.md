@@ -242,14 +242,14 @@ Sable の機体に取り付けると、その位置から機体を押す（重�
 |---|---|
 | `jet_nozzle` | 標準ノズル |
 | `jet_afterburner_nozzle` | アフターバーナー付き。スロットル全開＋N2 93%以上で再燃焼、推力 +50% |
-| `jet_vectoring_nozzle` | **偏向ノズル**。排気方向をピッチ／ヨー各最大 ±15°（設定 `vectorMaxAngle`、0〜30°）まで傾けられる |
+| `jet_vectoring_nozzle` | **偏向ノズル（アフターバーナー付き）**。排気方向をピッチ／ヨー各最大 ±15°（設定 `vectorMaxAngle`、0〜30°）まで傾けられ、アフターバーナーも使える |
 
 ### 偏向ノズル
 
 - `setNozzleVector(pitch, yaw)`: 偏向角を**度**で指令（ピッチ＋ = 排気を上へ、ヨー＋ = 排気を右へ）。範囲外は最大角に丸められる。偏向ノズルでないエンジンでは `false` を返す
 - ノズルは 120°/秒 で指令に追従する。推力そのものが傾くので、ノズル位置を中心に機体へ回転モーメントが働く。ジェットブラスト（排気の吹き飛ばし）と排気プルームの描画も偏向に追従する
 - `getNozzleVector()`: `vectoring` / `pitch` / `yaw`（現在の偏向角）/ `pitchCommand` / `yawCommand` / `maxAngle`。`getStructure()` にも `vectoring` が入る
-- アフターバーナーは付かない（再燃焼が要る場合はアフターバーナーノズルと使い分ける）
+- アフターバーナー付き：`setAfterburner(0..1)` がそのまま使え、再燃焼の炎も偏向方向に曲がる
 
 ## 反重力コア（`ashcc:antigravity_core`、周辺機器タイプ `antigravity`）
 
